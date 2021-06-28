@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "logging-tools"
+name = "logify"
 version = "0.1.0"
 description = "A tool for filtering logs quickly and easily"
 authors = ["Alex Thiel <apocthiel@gmail.com>"]
@@ -17,7 +17,7 @@ black = "^21.6b0"
 isort = "^5.9.1"
 
 [tool.poetry.scripts]
-loger = "logify:main"
+logify = "logify:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

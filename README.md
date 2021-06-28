@@ -1,4 +1,4 @@
-# logging-tools
+# logify
 
 A tool for filtering logs quickly and easily
 
