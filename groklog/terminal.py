@@ -32,6 +32,7 @@ class Terminal(Widget):
     starts a thread to transfer any data between the two processes (the one running this widget and
     the bash shell).
     """
+
     def __init__(self, name, height):
         super(Terminal, self).__init__(name)
         self._required_height = height
@@ -65,7 +66,12 @@ class Terminal(Widget):
 
         # Start the shell and thread to pull data from it.
         self._shell = subprocess.Popen(
-            ["bash", "-i"], preexec_fn=os.setsid, stdin=self._slave, stdout=self._slave, stderr=self._slave)
+            ["bash", "-i"],
+            preexec_fn=os.setsid,
+            stdin=self._slave,
+            stdout=self._slave,
+            stderr=self._slave,
+        )
         self._lock = threading.Lock()
         self._thread = threading.Thread(target=self._background)
         self._thread.daemon = True
@@ -124,8 +130,8 @@ class Terminal(Widget):
                 if command == Parser.DISPLAY_TEXT:
                     # Just display the text...  allowing for line wrapping.
                     if self._cursor_x + len(params) > self._w:
-                        part_1 = params[:self._w - self._cursor_x]
-                        part_2 = params[self._w - self._cursor_x:]
+                        part_1 = params[: self._w - self._cursor_x]
+                        part_2 = params[self._w - self._cursor_x :]
                         self._print_at(part_1, self._cursor_x, self._cursor_y)
                         self._print_at(part_2, 0, self._cursor_y + 1)
                         self._cursor_x = len(part_2)
@@ -156,7 +162,11 @@ class Terminal(Widget):
                 elif command == Parser.DELETE_LINE:
                     # Delete some/all of the current line.
                     if params == 0:
-                        self._print_at(" " * (self._w - self._cursor_x), self._cursor_x, self._cursor_y)
+                        self._print_at(
+                            " " * (self._w - self._cursor_x),
+                            self._cursor_x,
+                            self._cursor_y,
+                        )
                     elif params == 1:
                         self._print_at(" " * self._cursor_x, 0, self._cursor_y)
                     elif params == 2:
@@ -167,19 +177,30 @@ class Terminal(Widget):
                         if x + params < self._w:
                             cell = self._canvas.get_from(x + params, self._cursor_y)
                         else:
-                            cell = (ord(" "),
-                                    self._current_colours[0],
-                                    self._current_colours[1],
-                                    self._current_colours[2])
+                            cell = (
+                                ord(" "),
+                                self._current_colours[0],
+                                self._current_colours[1],
+                                self._current_colours[2],
+                            )
                         self._canvas.print_at(
-                            chr(cell[0]), x, self._cursor_y, colour=cell[1], attr=cell[2], bg=cell[3])
+                            chr(cell[0]),
+                            x,
+                            self._cursor_y,
+                            colour=cell[1],
+                            attr=cell[2],
+                            bg=cell[3],
+                        )
                 elif command == Parser.SHOW_CURSOR:
                     # Show/hide the cursor.
                     self._show_cursor = params
                 elif command == Parser.CLEAR_SCREEN:
                     # Clear the screen.
                     self._canvas.clear_buffer(
-                        self._current_colours[0], self._current_colours[1], self._current_colours[2])
+                        self._current_colours[0],
+                        self._current_colours[1],
+                        self._current_colours[2],
+                    )
             # Move to next line, scrolling buffer as needed.
             if i != len(lines) - 1:
                 self._cursor_x = 0
@@ -193,8 +214,12 @@ class Terminal(Widget):
         """
         self._canvas.print_at(
             text,
-            x, y,
-            colour=self._current_colours[0], attr=self._current_colours[1], bg=self._current_colours[2])
+            x,
+            y,
+            colour=self._current_colours[0],
+            attr=self._current_colours[1],
+            bg=self._current_colours[2],
+        )
 
     def _background(self):
         """
@@ -220,9 +245,15 @@ class Terminal(Widget):
         """
         Reset the widget to a blank screen.
         """
-        self._canvas = Canvas(self._frame.canvas, self._h, self._w, x=self._x, y=self._y)
+        self._canvas = Canvas(
+            self._frame.canvas, self._h, self._w, x=self._x, y=self._y
+        )
         self._cursor_x, self._cursor_y = 0, 0
-        self._current_colours = (Screen.COLOUR_WHITE, Screen.A_NORMAL, Screen.COLOUR_BLACK)
+        self._current_colours = (
+            Screen.COLOUR_WHITE,
+            Screen.A_NORMAL,
+            Screen.COLOUR_BLACK,
+        )
 
     def required_height(self, offset, width):
         """
@@ -263,12 +294,12 @@ class DemoFrame(Frame):
 
 
 def demo(screen, scene):
-    screen.play([
-        Scene([
-            Background(screen),
-            DemoFrame(screen)
-        ], -1)
-    ], stop_on_resize=True, start_scene=scene, allow_int=True)
+    screen.play(
+        [Scene([Background(screen), DemoFrame(screen)], -1)],
+        stop_on_resize=True,
+        start_scene=scene,
+        allow_int=True,
+    )
 
 
 last_scene = None
