@@ -100,11 +100,11 @@ class Shell(PubSubMixin):
         """
         if isinstance(event, KeyboardEvent):
             if event.key_code > 0:
-                os.write(self._master, chr(event.key_code).encode())
-                return
+                val = chr(event.key_code).encode()
             elif event.key_code in self._map:
-                os.write(self._master, self._map[event.key_code])
-                return
+                val = self._map[event.key_code]
+            self._shell.write(val)
+            return
         return event
 
     def _add_stream(self, value):
