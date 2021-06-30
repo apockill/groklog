@@ -70,16 +70,29 @@ class Shell(PubSubMixin):
         # Push current terminal output to screen.
         self._canvas.refresh()
 
-            # Draw cursor if needed.
-            if frame_no % 10 < 5 and self._show_cursor:
-                origin = self._canvas.origin
-                x = self._cursor_x + origin[0]
-                y = self._cursor_y + origin[1] - self._canvas.start_line
-                details = self._canvas.get_from(self._cursor_x, self._cursor_y)
-                if details:
-                    char, colour, attr, bg = details
-                    attr |= Screen.A_REVERSE
-                    self._frame.canvas.print_at(chr(char), x, y, colour, attr, bg)
+        # Drain the shell queue of any data that built up between frames
+        while self._data_queue.qsize():
+            self._add_stream(self._data_queue.get_nowait())
+
+        # Draw cursor if needed.
+        if frame_no % 10 < 5 and self._show_cursor:
+            origin = self._canvas.origin
+            x = self._cursor_x + origin[0]
+            y = self._cursor_y + origin[1] - self._canvas.start_line
+            details = self._canvas.get_from(self._cursor_x, self._cursor_y)
+            if details:
+                char, colour, attr, bg = details
+                attr |= Screen.A_REVERSE
+                self._frame.canvas.print_at(chr(char), x, y, colour, attr, bg)
+
+    def set_layout(self, x, y, offset, w, h):
+        """
+        Resize the widget (and underlying TTY) to the required size.
+        """
+        super(Terminal, self).set_layout(x, y, offset, w, h)
+        self._canvas = Canvas(self._frame.canvas, h, w, x=x, y=y)
+        winsize = struct.pack("HHHH", h, w, 0, 0)
+        fcntl.ioctl(self._shell._slave, termios.TIOCSWINSZ, winsize)
 
     def process_event(self, event):
         """
