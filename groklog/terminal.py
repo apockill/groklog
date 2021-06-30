@@ -2,6 +2,8 @@
 import subprocess
 import sys
 import threading
+from enum import Enum, auto
+from queue import Queue
 
 from asciimatics.effects import Background
 from asciimatics.event import KeyboardEvent
@@ -10,6 +12,7 @@ from asciimatics.parsers import AnsiTerminalParser, Parser
 from asciimatics.scene import Scene
 from asciimatics.screen import Canvas, Screen
 from asciimatics.widgets import Frame, Layout, Widget
+from pubsus import PubSubMixin
 
 try:
     import curses
@@ -24,10 +27,8 @@ except Exception:
     sys.exit(0)
 
 
-class Terminal(Widget):
+class Shell(PubSubMixin):
     """
-    Widget to handle ansi terminals running a bash shell.
-
     The widget will start a bash shell in the background and use a pseudo TTY to control it.  It then
     starts a thread to transfer any data between the two processes (the one running this widget and
     the bash shell).
@@ -59,41 +60,15 @@ class Terminal(Widget):
             self._map[k] = curses.tigetstr(v)
         self._map[Screen.KEY_TAB] = "\t".encode()
 
-        # Open a pseudo TTY to control the interactive session.  Make it non-blocking.
-        self._master, self._slave = pty.openpty()
-        fl = fcntl.fcntl(self._master, fcntl.F_GETFL)
-        fcntl.fcntl(self._master, fcntl.F_SETFL, fl | os.O_NONBLOCK)
-
-        # Start the shell and thread to pull data from it.
-        self._shell = subprocess.Popen(
-            ["bash", "-i"],
-            preexec_fn=os.setsid,
-            stdin=self._slave,
-            stdout=self._slave,
-            stderr=self._slave,
-        )
-        self._lock = threading.Lock()
-        self._thread = threading.Thread(target=self._background)
-        self._thread.daemon = True
-        self._thread.start()
-
-    def set_layout(self, x, y, offset, w, h):
-        """
-        Resize the widget (and underlying TTY) to the required size.
-        """
-        super(Terminal, self).set_layout(x, y, offset, w, h)
-        self._canvas = Canvas(self._frame.canvas, h, w, x=x, y=y)
-        winsize = struct.pack("HHHH", h, w, 0, 0)
-        fcntl.ioctl(self._slave, termios.TIOCSWINSZ, winsize)
+        # Subscribe to shell data
+        self._data_queue = Queue()
+        self._shell = shell
+        self._shell.subscribe(Shell.Topic.SHELL_DATA, self._data_queue.put)
 
     def update(self, frame_no):
-        """
-        Draw the current terminal content to screen.
-        """
-        # Don't allow background thread to update values mid screen refresh.
-        with self._lock:
-            # Push current terminal output to screen.
-            self._canvas.refresh()
+        """Draw the current terminal content to screen."""
+        # Push current terminal output to screen.
+        self._canvas.refresh()
 
             # Draw cursor if needed.
             if frame_no % 10 < 5 and self._show_cursor:
