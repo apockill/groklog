@@ -220,6 +220,14 @@ toml = "*"
 virtualenv = ">=20.0.8"
 
 [[package]]
+name = "pubsus"
+version = "0.1.1"
+description = ""
+category = "main"
+optional = false
+python-versions = ">=3.6,<4.0"
+
+[[package]]
 name = "py"
 version = "1.10.0"
 description = "library with cross-python path, ini-parsing, io, code, log facilities"
@@ -333,7 +341,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "e87a02690ecda37bfd1dd899ff911131cf97bb227bf5705602c8fd7807784813"
+content-hash = "81beea85f24e118d7bc38037f41420874dac8b9ad88e86e58ee91657f34b2500"
 
 [metadata.files]
 appdirs = [
@@ -450,6 +458,10 @@ pluggy = [
 pre-commit = [
     {file = "pre_commit-2.13.0-py2.py3-none-any.whl", hash = "sha256:b679d0fddd5b9d6d98783ae5f10fd0c4c59954f375b70a58cbe1ce9bcf9809a4"},
     {file = "pre_commit-2.13.0.tar.gz", hash = "sha256:764972c60693dc668ba8e86eb29654ec3144501310f7198742a767bec385a378"},
+]
+pubsus = [
+    {file = "pubsus-0.1.1-py3-none-any.whl", hash = "sha256:85f4c563592c1c2c1dc5510d0527584ccfa3aaaf9ef8f7a804b225c4ca33c69d"},
+    {file = "pubsus-0.1.1.tar.gz", hash = "sha256:759dce37fe28fa396b6e11b3afbf9effa8fea0f2380d906657f22868b5423a86"},
 ]
 py = [
     {file = "py-1.10.0-py2.py3-none-any.whl", hash = "sha256:3b80836aa6d1feeaa108e046da6423ab8f6ceda6468545ae8d02d9d58d18818a"},

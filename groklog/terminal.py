@@ -1,40 +1,24 @@
 #!/usr/bin/env python3
-import subprocess
-import sys
-import threading
-from enum import Enum, auto
+import curses
+import fcntl
+import struct
+import termios
 from queue import Queue
 
-from asciimatics.effects import Background
 from asciimatics.event import KeyboardEvent
-from asciimatics.exceptions import ResizeScreenError
 from asciimatics.parsers import AnsiTerminalParser, Parser
-from asciimatics.scene import Scene
 from asciimatics.screen import Canvas, Screen
-from asciimatics.widgets import Frame, Layout, Widget
-from pubsus import PubSubMixin
+from asciimatics.widgets import Widget
 
-try:
-    import curses
-    import fcntl
-    import os
-    import pty
-    import select
-    import struct
-    import termios
-except Exception:
-    print("This demo only runs on Unix systems.")
-    sys.exit(0)
+from groklog.shell import Shell
 
 
-class Shell(PubSubMixin):
+class Terminal(Widget):
     """
-    The widget will start a bash shell in the background and use a pseudo TTY to control it.  It then
-    starts a thread to transfer any data between the two processes (the one running this widget and
-    the bash shell).
+    Widget to handle ansi terminals running a bash shell.
     """
 
-    def __init__(self, name, height):
+    def __init__(self, name: str, shell: Shell, height: int):
         super(Terminal, self).__init__(name)
         self._required_height = height
         self._parser = AnsiTerminalParser()
@@ -209,26 +193,6 @@ class Shell(PubSubMixin):
             bg=self._current_colours[2],
         )
 
-    def _background(self):
-        """
-        Backround thread running the IO between the widget and the TTY session.
-        """
-        while True:
-            ready, _, _ = select.select([self._master], [], [])
-            for stream in ready:
-                value = ""
-                while True:
-                    try:
-                        data = os.read(stream, 102400)
-                        data = data.decode("utf8", "replace")
-                        value += data
-                    # Python 2 and 3 raise different exceptions when they would block
-                    except Exception:
-                        with self._lock:
-                            self._add_stream(value)
-                            self._frame.screen.force_update()
-                        break
-
     def reset(self):
         """
         Reset the widget to a blank screen.
@@ -265,35 +229,5 @@ class Shell(PubSubMixin):
         return
 
     @value.setter
-    def value(self, new_value):
+    def value(self, _):
         return
-
-
-class DemoFrame(Frame):
-    def __init__(self, screen):
-        super(DemoFrame, self).__init__(screen, screen.height, screen.width)
-
-        # Create the widgets for the demo.
-        layout = Layout([100], fill_frame=True)
-        self.add_layout(layout)
-        layout.add_widget(Terminal("term", Widget.FILL_FRAME))
-        self.fix()
-        self.set_theme("monochrome")
-
-
-def demo(screen, scene):
-    screen.play(
-        [Scene([Background(screen), DemoFrame(screen)], -1)],
-        stop_on_resize=True,
-        start_scene=scene,
-        allow_int=True,
-    )
-
-
-last_scene = None
-while True:
-    try:
-        Screen.wrapper(demo, catch_interrupt=False, arguments=[last_scene])
-        sys.exit(0)
-    except ResizeScreenError as e:
-        last_scene = e.scene

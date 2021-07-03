@@ -8,9 +8,11 @@ from groklog.app import GrokLog
 
 
 def main():
+    shell = Shell()
+
     def groklog(screen: Screen, old_scene):
         screen.play(
-            [Scene([GrokLog(screen)], duration=-1)],
+            [Scene([GrokLog(screen, shell=shell)], duration=-1)],
             stop_on_resize=True,
             start_scene=old_scene,
         )
