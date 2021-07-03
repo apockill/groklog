@@ -4,7 +4,8 @@ from asciimatics.exceptions import ResizeScreenError
 from asciimatics.scene import Scene
 from asciimatics.screen import Screen
 
-from groklog.app import GrokLog
+from .app import GrokLog
+from .shell import Shell
 
 
 def main():
@@ -15,6 +16,7 @@ def main():
             [Scene([GrokLog(screen, shell=shell)], duration=-1)],
             stop_on_resize=True,
             start_scene=old_scene,
+            allow_int=True,
         )
 
     last_scene = None
