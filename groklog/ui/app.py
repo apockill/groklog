@@ -1,7 +1,8 @@
+from asciimatics import widgets
 from asciimatics.widgets import Frame, Layout
 
-from .shell import Shell
-from .terminal import Terminal
+from groklog.shell import Shell
+from groklog.ui.terminal import Terminal
 
 
 class GrokLog(Frame):
