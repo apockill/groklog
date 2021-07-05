@@ -13,8 +13,9 @@ class ProcessFilter(PubSubMixin):
     def __init__(self, command: str):
         super().__init__()
 
+    def start(self):
         self._process = subprocess.Popen(
-            command,
+            self.command,
             shell=True,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
