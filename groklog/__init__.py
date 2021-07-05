@@ -22,7 +22,8 @@ def main():
     last_scene = None
     while True:
         try:
-            Screen.wrapper(func=groklog, catch_interrupt=False, arguments=[last_scene])
+            Screen.wrapper(func=groklog, catch_interrupt=True, arguments=[last_scene])
+            print("Thank you for using GrokLog!")
             sys.exit(0)
         except ResizeScreenError as e:
             last_scene = e.scene
@@ -30,9 +31,6 @@ def main():
             # Screen will be blank when it's too small. It's better than the
             # application crashing, I suppose
             pass
-        except KeyboardInterrupt:
-            print("Thank you for using groklog!")
-            break
 
 
 if __name__ == "__main__":
