@@ -1,19 +1,17 @@
+import fcntl
+import os
 import subprocess
-from enum import Enum, auto
 from threading import RLock, Thread
+from time import sleep
 
-from pubsus import PubSubMixin
+from .base import ProcessNode
 
 
-class ProcessFilter(PubSubMixin):
-    class Topic(Enum):
-        STRING_DATA_STREAM = auto()
-        BYTES_DATA_STREAM = auto()
-
+class GenericProcessIO(ProcessNode):
     def __init__(self, command: str):
         super().__init__()
+        self.command = command
 
-    def start(self):
         self._process = subprocess.Popen(
             self.command,
             shell=True,
@@ -21,6 +19,11 @@ class ProcessFilter(PubSubMixin):
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
         )
+
+        # Set stdout to be nonblocking
+        fd = self._process.stdout.fileno()
+        fl = fcntl.fcntl(fd, fcntl.F_GETFL)
+        fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
 
         # Lock while processes are piping data in
         self._input_lock = RLock()
@@ -31,24 +34,21 @@ class ProcessFilter(PubSubMixin):
 
     def write(self, data: bytes):
         """Input data from an upstream process"""
+        if not self._running:
+            return
+
         with self._input_lock:
             self._process.stdin.write(data)
             self._process.stdin.flush()
 
     def _background(self):
         while self._running:
+            # Read in a non-blocking fashion up to a certain number of characters.
             data_bytes = self._process.stdout.read1(102400)
 
             if len(data_bytes) == 0:
+                # Prevent a busyloop where there's no data in stdout.
+                sleep(0.1)
                 continue
 
-            data_string = data_bytes.decode("utf8", "replace")
-            self.publish(ProcessFilter.Topic.STRING_DATA_STREAM, data_string)
-            self.publish(ProcessFilter.Topic.BYTES_DATA_STREAM, data_bytes)
-
-    def close(self):
-        """Close all child processes and threads"""
-        self._running = False
-        self._process.terminate()
-        self._extraction_thread.join()
-        self._process.wait()
+            self._record_and_publish(data_bytes)
