@@ -10,7 +10,7 @@ from asciimatics.parsers import AnsiTerminalParser, Parser
 from asciimatics.screen import Canvas, Screen
 from asciimatics.widgets import Widget
 
-from groklog.shell import Shell
+from groklog.process_node import ShellProcessIO
 
 
 class Terminal(Widget):
@@ -18,7 +18,9 @@ class Terminal(Widget):
     Widget to handle ansi terminals running a bash shell.
     """
 
-    def __init__(self, name: str, shell: Shell, height: int, render_max_lines=100):
+    def __init__(
+        self, name: str, shell: ShellProcessIO, height: int, render_max_lines=100
+    ):
         super(Terminal, self).__init__(name)
         self.render_max_lines = render_max_lines
         self._required_height = height
@@ -48,7 +50,9 @@ class Terminal(Widget):
         # Subscribe to shell data
         self._data_queue = Queue()
         self._shell = shell
-        self._shell.subscribe(Shell.Topic.SHELL_DATA, self._data_queue.put)
+        self._shell.subscribe(
+            ShellProcessIO.Topic.STRING_DATA_STREAM, self._data_queue.put
+        )
 
     def update(self, frame_no):
         """Draw the current terminal content to screen."""
