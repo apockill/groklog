@@ -17,7 +17,11 @@ class Shell(PubSubMixin):
     """
 
     class Topic(Enum):
-        SHELL_DATA = auto
+        STRING_DATA_STREAM = auto()
+        """The shell data, but converted to a utf-8 encoded string"""
+
+        BYTES_DATA_STREAM = auto()
+        """The shell data as raw bytes"""
 
     def __init__(self):
         super().__init__()
@@ -37,9 +41,8 @@ class Shell(PubSubMixin):
         )
 
         # Start the shell and thread to pull data from it.
-        self._thread = Thread(target=self._background)
-        self._thread.daemon = True
-        self._thread.start()
+        self._extraction_thread = Thread(target=self._background, daemon=True)
+        self._extraction_thread.start()
 
         # Keep track of all data sent thus far, so that after resizing the
         # state can be recovered.
