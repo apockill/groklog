@@ -63,3 +63,7 @@ class ShellProcessIO(ProcessNode):
     def write(self, val: bytes):
         """Write a character to the tty"""
         os.write(self._master, val)
+
+    def send_sigint(self):
+        """Simulate the user sending Ctrl+C to the underlying shell"""
+        self.write("\x03".encode())
