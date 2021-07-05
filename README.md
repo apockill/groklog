@@ -17,3 +17,9 @@ groklog --help
 ```
 pytest .
 ```
+
+## Attributions
+This code makes heavy use of the fantastic `asciimatics` library for all TUI 
+rendering purposes. Some reference code as copied from the 
+[terminal.py](https://github.com/peterbrittain/asciimatics/blob/master/samples/terminal.py) 
+sample. 
