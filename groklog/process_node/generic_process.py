@@ -29,8 +29,13 @@ class GenericProcessIO(ProcessNode):
         self._input_lock = RLock()
 
         self._running = True
-        self._extraction_thread = Thread(daemon=True, target=self._background)
+        self._extraction_thread = Thread(
+            name=f"Thread({self})", daemon=True, target=self._background
+        )
         self._extraction_thread.start()
+
+    def __repr__(self):
+        return f"{self.__class__.__qualname__}(command='{self.command}')"
 
     def write(self, data: bytes):
         """Input data from an upstream process"""

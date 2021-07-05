@@ -6,10 +6,10 @@ import subprocess
 from enum import Enum, auto
 from threading import RLock, Thread
 
-from pubsus import PubSubMixin
+from .base import ProcessNode
 
 
-class Shell(PubSubMixin):
+class ShellProcessIO(ProcessNode):
     """
     The widget will start a bash shell in the background and use a pseudo TTY to control it.  It then
     starts a thread to transfer any data between the two processes (the one running this widget and
@@ -32,7 +32,7 @@ class Shell(PubSubMixin):
         fl = fcntl.fcntl(self._master, fcntl.F_GETFL)
         fcntl.fcntl(self._master, fcntl.F_SETFL, fl | os.O_NONBLOCK)
 
-        self._shell = subprocess.Popen(
+        self._process = subprocess.Popen(
             ["bash", "-i"],
             preexec_fn=os.setsid,
             stdin=self._slave,
@@ -41,7 +41,10 @@ class Shell(PubSubMixin):
         )
 
         # Start the shell and thread to pull data from it.
-        self._extraction_thread = Thread(target=self._background, daemon=True)
+        self._running = True
+        self._extraction_thread = Thread(
+            name=f"Thread({self})", target=self._background, daemon=True
+        )
         self._extraction_thread.start()
 
         # Keep track of all data sent thus far, so that after resizing the
