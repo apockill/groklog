@@ -71,11 +71,3 @@ def test_history_is_passed():
 
     # Close resources
     process.close()
-
-
-def drain_until_queue_equals(queue: Queue, value: bytes, timeout=5):
-    """Drains a queue until an expected value is reached, or the queue
-    times out."""
-    retrieved = b""
-    while retrieved != value:
-        retrieved += queue.get(timeout=timeout)
