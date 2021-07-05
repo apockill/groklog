@@ -3,6 +3,7 @@ from queue import Queue
 import pytest
 
 from groklog.process_node import GenericProcessIO, ShellProcessIO
+from tests.utils import drain_until_queue_equals
 
 
 @pytest.mark.parametrize(
