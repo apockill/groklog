@@ -1,10 +1,11 @@
+from abc import ABC, abstractmethod
 from enum import Enum, auto
 from threading import RLock
 
 from pubsus import PubSubMixin
 
 
-class ProcessNode(PubSubMixin):
+class ProcessNode(ABC, PubSubMixin):
     class Topic(Enum):
         STRING_DATA_STREAM = auto()
         """The process's stdout data, but converted to a utf-8 encoded string"""
@@ -44,16 +45,13 @@ class ProcessNode(PubSubMixin):
                     subscriber(self._bytes_history)
             super().subscribe(topic, subscriber)
 
+    @abstractmethod
+    def write(self, val: bytes):
+        pass
+
     def close(self):
         """Close all child processes and threads"""
         self._running = False
-
-        # Closing the stdout and stdin speeds up shutting down the extraction
-        # thread, because it immediately stops the stdout.read call.
-        self._process.stdout.close()
-        self._process.stdin.close()
-        self._process.kill()
-
-        # Wait for things to close.
+        self._process.terminate()
         self._extraction_thread.join(5)
-        self._process.wait()
+        self._process.wait(5)
