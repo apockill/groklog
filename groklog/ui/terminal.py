@@ -18,8 +18,9 @@ class Terminal(Widget):
     Widget to handle ansi terminals running a bash shell.
     """
 
-    def __init__(self, name: str, shell: Shell, height: int):
+    def __init__(self, name: str, shell: Shell, height: int, render_max_lines=100):
         super(Terminal, self).__init__(name)
+        self.render_max_lines = render_max_lines
         self._required_height = height
         self._parser = AnsiTerminalParser()
         self._canvas = None
@@ -55,8 +56,10 @@ class Terminal(Widget):
         self._canvas.refresh()
 
         # Drain the shell queue of any data that built up between frames
+        full_stream = ""
         while self._data_queue.qsize():
-            self._add_stream(self._data_queue.get_nowait())
+            full_stream += self._data_queue.get_nowait()
+        self._add_stream(full_stream)
 
         # Draw cursor if needed.
         if frame_no % 10 < 5 and self._show_cursor:
@@ -93,9 +96,12 @@ class Terminal(Widget):
 
     def _add_stream(self, value):
         """
-        Process any output from the TTY.
+        Process any output from the TTY. The value is split into lines, and only
+        the last X lines will get rendered. This makes it possible for the
+        shell to dump huge amounts of data, but the UI not to get overwhelmed
+        (after all, the terminal is unlikely to incredibly tall).
         """
-        lines = value.split("\n")
+        lines = value.split("\n")[-self.render_max_lines :]
         for i, line in enumerate(lines):
             self._parser.reset(line, self._current_colours)
             for offset, command, params in self._parser.parse():
