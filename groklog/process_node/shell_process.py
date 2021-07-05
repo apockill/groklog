@@ -16,13 +16,6 @@ class ShellProcessIO(ProcessNode):
     the bash shell).
     """
 
-    class Topic(Enum):
-        STRING_DATA_STREAM = auto()
-        """The shell data, but converted to a utf-8 encoded string"""
-
-        BYTES_DATA_STREAM = auto()
-        """The shell data as raw bytes"""
-
     def __init__(self):
         super().__init__()
 
@@ -47,39 +40,26 @@ class ShellProcessIO(ProcessNode):
         )
         self._extraction_thread.start()
 
-        # Keep track of all data sent thus far, so that after resizing the
-        # state can be recovered.
-        self.data_history = ""
-        self.data_history_lock = RLock()
-
-    def subscribe(self, topic, subscriber):
-        # TODO: Do I want to keep this method? With longer logs it can lock up
-        #       the system...
-        with self.data_history_lock:
-            subscriber(self.data_history)
-            super().subscribe(topic, subscriber)
+    def __repr__(self):
+        return f"{self.__class__.__qualname__}()"
 
     def _background(self):
         """
         Background thread running the IO between the widget and the TTY session.
         """
-        while True:
+        while self._running:
             ready, _, _ = select.select([self._master], [], [])
             for stream in ready:
-                value = ""
-                while True:
+                data_bytes = b""
+                while self._running:
                     try:
-                        data = os.read(stream, 102400)
+                        new_bytes = os.read(stream, 102400)
                     except BlockingIOError:
                         break
-                    if not isinstance(data, str):
-                        data = data.decode("utf8", "replace")
-                    value += data
+                    data_bytes += new_bytes
 
-                with self.data_history_lock:
-                    self.data_history += value
-                    self.publish(Shell.Topic.SHELL_DATA, value)
+                self._record_and_publish(data_bytes)
 
-    def write(self, val: str):
+    def write(self, val: bytes):
         """Write a character to the tty"""
         os.write(self._master, val)
