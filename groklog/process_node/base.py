@@ -49,9 +49,9 @@ class ProcessNode(ABC, PubSubMixin):
     def write(self, val: bytes):
         pass
 
-    def close(self):
+    def close(self, timeout=None):
         """Close all child processes and threads"""
         self._running = False
         self._process.terminate()
-        self._extraction_thread.join(5)
-        self._process.wait(5)
+        self._extraction_thread.join(timeout)
+        self._process.wait(timeout)
