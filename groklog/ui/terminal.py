@@ -244,7 +244,7 @@ class Terminal(Widget):
         Frame update rate required.
         """
         # Force refresh for cursor.
-        return 5
+        return 1
 
     @property
     def value(self):
