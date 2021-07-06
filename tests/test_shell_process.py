@@ -9,13 +9,6 @@ RE_SHELL_PREFIX = b".*\$"
 """This matches bash shells <prefix>$ before each command."""
 
 
-@pytest.fixture()
-def shell():
-    shell = ShellProcessIO()
-    yield shell
-    shell.close()
-
-
 @pytest.mark.parametrize(
     ("write_input", "expected_output"),
     [
