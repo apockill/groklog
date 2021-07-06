@@ -11,13 +11,21 @@ from groklog.ui.app import GrokLog
 def main():
     shell = ShellProcessIO()
 
-    def groklog(screen: Screen, old_scene):
-        screen.play(
-            [Scene([GrokLog(screen, shell=shell)], duration=-1)],
-            stop_on_resize=True,
-            start_scene=old_scene,
-            allow_int=True,
-        )
+    def groklog(screen: Screen, scene):
+        scenes = [
+            Scene(
+                [GrokLog(screen, shell=shell)],
+                duration=-1,
+                name=scene_names.SHELL_VIEW,
+            ),
+            Scene(
+                [FilterCreator(screen)],
+                duration=-1,
+                name=scene_names.FILTER_CREATOR_SCENE,
+            ),
+        ]
+
+        screen.play(scenes, stop_on_resize=True, start_scene=scene, allow_int=True)
 
     last_scene = None
     while True:
