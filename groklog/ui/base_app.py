@@ -6,6 +6,10 @@ from asciimatics.widgets import Frame
 
 
 class BaseApp(Frame):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.set_theme("monochrome")
+
     def change_scene(self, scene_name: str):
         raise NextScene(scene_name)
 
@@ -16,7 +20,7 @@ class BaseApp(Frame):
             effects.Print(
                 self.screen,
                 renderers.SpeechBubble(text=message, uni=True),
-                speed=0,
+                speed=1,
                 transparent=False,
                 clear=True,
                 delete_count=30,

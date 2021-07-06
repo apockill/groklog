@@ -6,6 +6,7 @@ from asciimatics.screen import Screen
 from asciimatics.widgets import Layout
 
 from groklog.process_node import ShellProcessIO
+from groklog.ui import scene_names
 from groklog.ui.base_app import BaseApp
 from groklog.ui.terminal import Terminal
 
@@ -17,6 +18,7 @@ class GrokLog(BaseApp):
             screen.height,
             screen.width,
             has_border=True,
+            can_scroll=False,
             name="GrokLog",
             title="GrokLog",
         )
@@ -32,7 +34,7 @@ class GrokLog(BaseApp):
 
         # Create the Tab Layout and buttons for it
         add_filter_button = widgets.Button(
-            "Add Filter", lambda: self.display_toast("benis")
+            "Add Filter", partial(self.change_scene, scene_names.FILTER_CREATOR_SCENE)
         )
 
         tab_layout = Layout([1, 0, 1, 1, 1, 1, 1])
@@ -41,7 +43,6 @@ class GrokLog(BaseApp):
         tab_layout.add_widget(widgets.VerticalDivider(), 1)
 
         self.fix()
-        self.set_theme("monochrome")
 
     def process_event(self, event):
         if isinstance(event, KeyboardEvent):
