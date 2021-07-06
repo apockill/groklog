@@ -50,9 +50,6 @@ class Terminal(Widget):
         # Subscribe to shell data
         self._data_queue = Queue()
         self._shell = shell
-        self._shell.subscribe(
-            ShellProcessIO.Topic.STRING_DATA_STREAM, self._data_queue.put
-        )
 
     def update(self, frame_no):
         """Draw the current terminal content to screen."""
@@ -215,6 +212,18 @@ class Terminal(Widget):
             Screen.COLOUR_WHITE,
             Screen.A_NORMAL,
             Screen.COLOUR_BLACK,
+        )
+
+        # Unsubscribe and resubscribe to the stream to get back the full history
+        if self._shell.is_subscribed(
+            ShellProcessIO.Topic.STRING_DATA_STREAM, self._data_queue.put
+        ):
+            self._shell.unsubscribe(
+                ShellProcessIO.Topic.STRING_DATA_STREAM, self._data_queue.put
+            )
+
+        self._shell.subscribe(
+            ShellProcessIO.Topic.STRING_DATA_STREAM, self._data_queue.put
         )
 
     def required_height(self, offset, width):
