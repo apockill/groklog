@@ -5,7 +5,9 @@ from asciimatics.scene import Scene
 from asciimatics.screen import Screen
 
 from groklog.process_node import ShellProcessIO
+from groklog.ui import scene_names
 from groklog.ui.app import GrokLog
+from groklog.ui.filter_creator import FilterCreator
 
 
 def main():
