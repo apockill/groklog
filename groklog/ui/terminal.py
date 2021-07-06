@@ -19,7 +19,12 @@ class Terminal(Widget):
     """
 
     def __init__(
-        self, name: str, shell: ShellProcessIO, height: int, render_max_lines=100
+        self,
+        name: str,
+        shell: ShellProcessIO,
+        height: int,
+        render_max_lines: int = 100,
+        show_cursor: bool = True,
     ):
         super(Terminal, self).__init__(name)
         self.render_max_lines = render_max_lines
@@ -28,7 +33,7 @@ class Terminal(Widget):
         self._canvas = None
         self._current_colours = None
         self._cursor_x, self._cursor_y = 0, 0
-        self._show_cursor = True
+        self._show_cursor = show_cursor
 
         # Supported key mappings
         self._map = {}
@@ -60,10 +65,11 @@ class Terminal(Widget):
         full_stream = ""
         while self._data_queue.qsize():
             full_stream += self._data_queue.get_nowait()
-        self._add_stream(full_stream)
+        if len(full_stream):
+            self._add_stream(full_stream)
 
         # Draw cursor if needed.
-        if frame_no % 10 < 5 and self._show_cursor:
+        if frame_no % 20 < 10 and self._show_cursor:
             origin = self._canvas.origin
             x = self._cursor_x + origin[0]
             y = self._cursor_y + origin[1] - self._canvas.start_line
