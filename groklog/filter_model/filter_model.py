@@ -9,17 +9,22 @@ ROOT_FILTER_NAME = "Shell"
 
 class FilterModel:
     # Set constants for how serialization and UI will map data
-    FILTER_NAME = "filter_name"
-    FILTER_COMMAND = "filter_command"
+    FILTER_PARENT = "parent_process"
+    FILTER_NAME = "name"
+    FILTER_COMMAND = "command"
 
     def __init__(self, shell: ShellProcessIO):
         self._filters: Dict[str, Filter] = {}
-        """A dictionary of filter_name: Filter"""
+        """A dictionary of Filter.name: Filter"""
 
         # Register the "root" filter
         self.create_filter(
             name=ROOT_FILTER_NAME, command="", parent=None, process_node=shell
         )
+
+    def __iter__(self):
+        for filter in self._filters.values():
+            yield filter
 
     @property
     def root_filter(self) -> Filter:
@@ -50,8 +55,8 @@ class FilterModel:
 
         # Create and register the filter
         filter = Filter(
-            filter_name=name,
-            filter_command=command,
+            name=name,
+            command=command,
             parent=parent,
             process_node=process_node,
         )
