@@ -58,6 +58,25 @@ def test_create_filter(mock_shell):
 def test_get_filter(mock_shell):
     filter_model = FilterModel(shell=mock_shell)
     assert filter_model.root_filter is filter_model._filters[ROOT_FILTER_NAME]
+    assert (
+        filter_model.get_filter(ROOT_FILTER_NAME)
+        is filter_model._filters[ROOT_FILTER_NAME]
+    )
 
     with pytest.raises(FilterNotFoundError):
         filter_model.get_filter("nonexistent filter name")
+
+
+def test_iteration(mock_shell):
+    filter_model = FilterModel(shell=mock_shell)
+    filters = [filter_model.root_filter]
+    filters += [
+        filter_model.create_filter(
+            name=f"cool_filter {i}",
+            command="cat",
+            parent=filter_model.root_filter,
+        )
+        for i in range(5)
+    ]
+
+    assert list(filter_model) == filters
