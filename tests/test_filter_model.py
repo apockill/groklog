@@ -14,8 +14,8 @@ def test_instantiation_registers_root_filter(mock_shell):
     assert len(filter_model._filters) == 1
     filter = filter_model._filters[ROOT_FILTER_NAME]
     assert isinstance(filter, Filter)
-    assert filter.filter_name == ROOT_FILTER_NAME
-    assert filter.filter_command == ""
+    assert filter.name == ROOT_FILTER_NAME
+    assert filter.command == ""
 
 
 def test_no_parent_raises_error(mock_shell):
@@ -48,10 +48,10 @@ def test_create_filter(mock_shell):
         parent=filter_model.root_filter,
     )
     assert filter_model.get_filter("Cool filter") is new_filter
-    assert new_filter.filter_name == "Cool filter"
-    assert new_filter.filter_command == "grep -k"
+    assert new_filter.name == "Cool filter"
+    assert new_filter.command == "grep -k"
     assert new_filter.parent is filter_model.root_filter
-    assert filter_model._filters[new_filter.filter_name] is new_filter
+    assert filter_model._filters[new_filter.name] is new_filter
     assert len(filter_model._filters) == 2
 
 
