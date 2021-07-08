@@ -8,10 +8,11 @@ from groklog.ui.base_app import BaseApp
 
 
 class FilterCreator(BaseApp):
-    _SYSTEM_SETTINGS_COLUMN = 0
-    _NEW_FILTER_PARAMETERS_COLUMN = 1
+    _NEW_FILTER_PARAMETERS_COLUMN = 0
+    _SYSTEM_SETTINGS_COLUMN = 1
+    _SAVE_PATH_LABEL = "save_path"
 
-    def __init__(self, screen, filter_model: FilterModel):
+    def __init__(self, screen, filter_model: FilterModel, profile_path: Path):
         super().__init__(
             screen,
             screen.height,
@@ -26,13 +27,25 @@ class FilterCreator(BaseApp):
         dialog_layout = Layout([1, 1], fill_frame=True)
 
         self.add_layout(dialog_layout)
+
+        # Add the widgets for the left column
+        self.profile_path = profile_path
+        save_path_widget = widgets.Text(
+            label="Save Profile At",
+            name=self._SAVE_PATH_LABEL,
+            on_change=None,
+            validator=None,
+        )
+        dialog_layout.add_widget(save_path_widget, column=self._SYSTEM_SETTINGS_COLUMN)
+
+        # Add the widgets for the right column
         dialog_layout.add_widget(
             widgets.DropdownList(
                 options=[(f.name, i + 1) for i, f in enumerate(self._filter_model)],
                 label="Input Process",
                 name=FilterModel.FILTER_PARENT,
             ),
-            column=self.NEW_FILTER_PARAMETERS_COLUMN,
+            column=self._NEW_FILTER_PARAMETERS_COLUMN,
         )
         dialog_layout.add_widget(
             widgets.Text(
@@ -40,7 +53,7 @@ class FilterCreator(BaseApp):
                 name=FilterModel.FILTER_NAME,
                 validator=lambda val: 0 < len(val) < 10,
             ),
-            column=self.NEW_FILTER_PARAMETERS_COLUMN,
+            column=self._NEW_FILTER_PARAMETERS_COLUMN,
         )
         dialog_layout.add_widget(
             widgets.Text(
@@ -48,7 +61,7 @@ class FilterCreator(BaseApp):
                 name=FilterModel.FILTER_COMMAND,
                 validator=lambda val: len(val) > 0,
             ),
-            column=self.NEW_FILTER_PARAMETERS_COLUMN,
+            column=self._NEW_FILTER_PARAMETERS_COLUMN,
         )
 
         # I put two dividers here, one invisible. The invisible one pushes the
@@ -99,6 +112,7 @@ class FilterCreator(BaseApp):
             FilterModel.FILTER_PARENT: 1,
             FilterModel.FILTER_NAME: "",
             FilterModel.FILTER_COMMAND: "",
+            self._SAVE_PATH_LABEL: str(self.profile_path),
         }
 
     def cancel_contents(self):
