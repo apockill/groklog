@@ -1,11 +1,14 @@
-from asciimatics import effects, renderers
+from typing import Callable, List
+
+from asciimatics import effects, renderers, widgets
 from asciimatics.event import KeyboardEvent
 from asciimatics.exceptions import NextScene, StopApplication
 from asciimatics.screen import Screen
 
 from .theming import set_theme
 
-class BaseApp(Frame):
+
+class BaseApp(widgets.Frame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         set_theme(self)
@@ -26,6 +29,26 @@ class BaseApp(Frame):
                 delete_count=30,
                 y=int(self.screen.height * 0.8),
             ),
+        )
+
+    def display_popup(
+        self,
+        text: str,
+        buttons: List[
+            str,
+        ],
+        callback: Callable[[str], None] = None,
+        theme="warning",
+    ):
+        self._scene.add_effect(
+            widgets.PopUpDialog(
+                self._screen,
+                text,
+                buttons,
+                has_shadow=True,
+                on_close=callback,
+                theme=theme,
+            )
         )
 
     def process_event(self, event):
