@@ -2,13 +2,13 @@ from asciimatics import effects, renderers
 from asciimatics.event import KeyboardEvent
 from asciimatics.exceptions import NextScene, StopApplication
 from asciimatics.screen import Screen
-from asciimatics.widgets import Frame
 
+from .theming import set_theme
 
 class BaseApp(Frame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.set_theme("monochrome")
+        set_theme(self)
 
     def change_scene(self, scene_name: str):
         raise NextScene(scene_name)
