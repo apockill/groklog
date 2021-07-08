@@ -21,7 +21,11 @@ def main():
                 name=scene_names.SHELL_VIEW,
             ),
             Scene(
-                [FilterCreator(screen)],
+                [
+                    FilterCreator(
+                        screen, filter_model=filter_model, profile_path=save_path
+                    )
+                ],
                 duration=-1,
                 name=scene_names.FILTER_CREATOR_SCENE,
             ),
