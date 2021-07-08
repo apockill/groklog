@@ -1,7 +1,8 @@
+from pathlib import Path
 from typing import Dict, Optional
 
 from groklog.filter_model import Filter, exceptions
-from groklog.process_node import ProcessNode, ShellProcessIO
+from groklog.process_node import GenericProcessIO, ProcessNode, ShellProcessIO
 
 ROOT_FILTER_NAME = "Shell"
 """The default name for the root shell process"""
@@ -14,6 +15,10 @@ class FilterModel:
     FILTER_COMMAND = "command"
 
     def __init__(self, shell: ShellProcessIO):
+        """
+        :param shell: The shell, which will be the 'root' process for input
+        """
+
         self._filters: Dict[str, Filter] = {}
         """A dictionary of Filter.name: Filter"""
 

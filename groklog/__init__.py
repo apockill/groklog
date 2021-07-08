@@ -11,6 +11,10 @@ from groklog.ui.filter_creator import FilterCreator
 
 
 def main():
+    # In some systems, curses takes a while to pass Escape key input. More info here:
+    # https://github.com/peterbrittain/asciimatics/issues/232
+    os.environ.setdefault("ESCDELAY", "0")
+
     shell = ShellProcessIO()
 
     def groklog(screen: Screen, scene):
