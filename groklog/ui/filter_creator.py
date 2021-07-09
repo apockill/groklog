@@ -8,8 +8,8 @@ from groklog.ui.base_app import BaseApp
 
 
 class FilterCreator(BaseApp):
-    _NEW_FILTER_PARAMETERS_COLUMN = 0
-    _SYSTEM_SETTINGS_COLUMN = 1
+    _NEW_FILTER_PARAMETERS_COLUMN = 1
+    _SYSTEM_SETTINGS_COLUMN = 3
     _SAVE_PATH_LABEL = "save_path"
 
     def __init__(self, screen, filter_manager: FilterManager, profile_path: Path):
@@ -25,28 +25,39 @@ class FilterCreator(BaseApp):
         self._filter_manager = filter_manager
         self.profile_path = profile_path
 
-        dialog_layout = Layout([1, 1], fill_frame=True)
+        dialog_layout = Layout([1, 30, 1, 30, 1], fill_frame=True)
 
         self.add_layout(dialog_layout)
 
         # Add the widgets for the left column
-        self.profile_path = profile_path
-        save_path_widget = widgets.Text(
-            label="Save Profile At",
-            name=self._SAVE_PATH_LABEL,
-            on_change=None,
-            validator=None,
+        dialog_layout.add_widget(
+            widgets.Label("System Configuration", align="^", height=2),
+            column=self._SYSTEM_SETTINGS_COLUMN,
+        )
+        dialog_layout.add_widget(
+            widgets.Text(
+                label="Save Path",
+                name=self._SAVE_PATH_LABEL,
+                on_change=None,
+                validator=None,
+            ),
+            column=self._SYSTEM_SETTINGS_COLUMN,
         )
         dialog_layout.add_widget(save_path_widget, column=self._SYSTEM_SETTINGS_COLUMN)
 
         # Add the widgets for the right column
         dialog_layout.add_widget(
-            widgets.DropdownList(
-                options=[(f.name, i + 1) for i, f in enumerate(self._filter_model)],
-                label="Input Process",
-                name=FilterModel.FILTER_PARENT,
-            ),
+            widgets.Label("New Filter Parameters", align="^", height=2),
             column=self._NEW_FILTER_PARAMETERS_COLUMN,
+        )
+        self.source_drop_down = widgets.DropdownList(
+            options=[],
+            label="Input Source",
+            name=FilterManager.FILTER_PARENT,
+        )
+
+        dialog_layout.add_widget(
+            self.source_drop_down, column=self._NEW_FILTER_PARAMETERS_COLUMN
         )
         dialog_layout.add_widget(
             widgets.Text(
@@ -78,11 +89,10 @@ class FilterCreator(BaseApp):
         # Create the Tab Layout and buttons for it
         save_filter_button = widgets.Button("Save", self.save_filters)
         cancel_filter_button = widgets.Button("Cancel", self.cancel_contents)
-        save_cancel_layout = Layout([10, 1, 1, 1])
+        save_cancel_layout = Layout([7, 1, 1])
         self.add_layout(save_cancel_layout)
-        save_cancel_layout.add_widget(widgets.VerticalDivider(), 1)
-        save_cancel_layout.add_widget(save_filter_button, 2)
-        save_cancel_layout.add_widget(cancel_filter_button, 3)
+        save_cancel_layout.add_widget(save_filter_button, 1)
+        save_cancel_layout.add_widget(cancel_filter_button, 2)
 
         self.fix()
 
