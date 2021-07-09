@@ -52,6 +52,6 @@ class ProcessNode(ABC, PubSubMixin):
     def close(self, timeout=None):
         """Close all child processes and threads"""
         self._running = False
-        self._process.terminate()
+        self._process.kill()
         self._extraction_thread.join(timeout)
         self._process.wait(timeout)

@@ -3,8 +3,7 @@ import os
 import pty
 import select
 import subprocess
-from enum import Enum, auto
-from threading import RLock, Thread
+from threading import Thread
 
 from .base import ProcessNode
 
