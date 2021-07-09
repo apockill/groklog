@@ -2,7 +2,7 @@ from asciimatics import effects, renderers, widgets
 from asciimatics.exceptions import InvalidFields
 from asciimatics.widgets import Frame, Layout
 
-from groklog.filter_model import DuplicateFilterError, FilterModel
+from groklog.filter_manager import DuplicateFilterError, FilterManager
 from groklog.ui import scene_names
 from groklog.ui.base_app import BaseApp
 
@@ -12,7 +12,7 @@ class FilterCreator(BaseApp):
     _SYSTEM_SETTINGS_COLUMN = 1
     _SAVE_PATH_LABEL = "save_path"
 
-    def __init__(self, screen, filter_model: FilterModel, profile_path: Path):
+    def __init__(self, screen, filter_manager: FilterManager, profile_path: Path):
         super().__init__(
             screen,
             screen.height,
@@ -22,7 +22,8 @@ class FilterCreator(BaseApp):
             name="Benis",
             title="Create Filter",
         )
-        self._filter_model = filter_model
+        self._filter_manager = filter_manager
+        self.profile_path = profile_path
 
         dialog_layout = Layout([1, 1], fill_frame=True)
 
@@ -50,7 +51,7 @@ class FilterCreator(BaseApp):
         dialog_layout.add_widget(
             widgets.Text(
                 label="Filter Name",
-                name=FilterModel.FILTER_NAME,
+                name=FilterManager.FILTER_NAME,
                 validator=lambda val: 0 < len(val) < 10,
             ),
             column=self._NEW_FILTER_PARAMETERS_COLUMN,
@@ -58,7 +59,7 @@ class FilterCreator(BaseApp):
         dialog_layout.add_widget(
             widgets.Text(
                 label="Command",
-                name=FilterModel.FILTER_COMMAND,
+                name=FilterManager.FILTER_COMMAND,
                 validator=lambda val: len(val) > 0,
             ),
             column=self._NEW_FILTER_PARAMETERS_COLUMN,
@@ -109,9 +110,9 @@ class FilterCreator(BaseApp):
     def reset(self):
         super().reset()
         self.data = {
-            FilterModel.FILTER_PARENT: 1,
-            FilterModel.FILTER_NAME: "",
-            FilterModel.FILTER_COMMAND: "",
+            FilterManager.FILTER_PARENT: 0,
+            FilterManager.FILTER_NAME: "",
+            FilterManager.FILTER_COMMAND: "",
             self._SAVE_PATH_LABEL: str(self.profile_path),
         }
 

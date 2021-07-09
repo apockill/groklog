@@ -1,5 +1,6 @@
 import pytest
 
+from groklog.filter_manager import FilterManager
 from groklog.process_node import ShellProcessIO
 from tests import utils
 

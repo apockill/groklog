@@ -1,15 +1,19 @@
 from pathlib import Path
 from typing import Dict, Optional
 
-from groklog.filter_model import Filter, exceptions
+from groklog.filter_manager import Filter, exceptions
 from groklog.process_node import GenericProcessIO, ProcessNode, ShellProcessIO
 
 ROOT_FILTER_NAME = "Shell"
 """The default name for the root shell process"""
 
 
-class FilterModel:
-    # Set constants for how serialization and UI will map data
+class FilterManager:
+    """
+    This class handles the storing, saving, loading, and creation of ProcessNode objects
+    """
+
+    # Set constants for how serialization. The UI also uses these for labels.
     FILTER_PARENT = "parent_process"
     FILTER_NAME = "name"
     FILTER_COMMAND = "command"
