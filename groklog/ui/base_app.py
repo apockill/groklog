@@ -54,7 +54,7 @@ class BaseApp(widgets.Frame):
     def process_event(self, event):
         """Handle shutting down the program if escape is pressed"""
         if isinstance(event, KeyboardEvent):
-            if event.key_code in (Screen.KEY_ESCAPE, Screen.KEY_END):
+            if event.key_code == Screen.KEY_ESCAPE:
                 # Close the program when Escape or End is pressed
                 raise StopApplication("")
         super().process_event(event)
