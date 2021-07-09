@@ -1,25 +1,33 @@
 import os
 import sys
-from pathlib import Path
 
-import appdirs
 from asciimatics.exceptions import ResizeScreenError
 from asciimatics.scene import Scene
 from asciimatics.screen import Screen
 
+from groklog.args import parse_args
 from groklog.filter_manager import FilterManager
 from groklog.process_node import ShellProcessIO
 from groklog.ui import scene_names
 from groklog.ui.app import GrokLog
 from groklog.ui.filter_creator import FilterCreator
 
+from .version import __version__
+
 
 def main():
     # In some systems, curses takes a while to pass Escape key input. More info here:
     # https://github.com/peterbrittain/asciimatics/issues/232
     os.environ.setdefault("ESCDELAY", "0")
+    args = parse_args()
 
     shell = ShellProcessIO()
+    filter_manager = FilterManager(shell=shell)
+
+    # Load configuration
+    save_path = args.profile_directory / (args.profile + ".json")
+    if save_path.is_file():
+        filter_manager.load_profile(save_path)
 
     def groklog(screen: Screen, scene):
         scenes = [
@@ -31,7 +39,7 @@ def main():
             Scene(
                 [
                     FilterCreator(
-                        screen, filter_model=filter_model, profile_path=save_path
+                        screen, filter_manager=filter_manager, profile_path=save_path
                     )
                 ],
                 duration=-1,
