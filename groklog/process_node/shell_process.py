@@ -47,7 +47,8 @@ class ShellProcessIO(ProcessNode):
         Background thread running the IO between the widget and the TTY session.
         """
         while self._running:
-            ready, _, _ = select.select([self._master], [], [])
+            # Wait for any of the file descriptors to have data, with a 1 second timeout
+            ready, _, _ = select.select([self._master], [], [], 1)
             for stream in ready:
                 data_bytes = b""
                 while self._running:
