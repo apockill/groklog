@@ -25,7 +25,7 @@ def test_duplicate_filter_name_raises_error(filter_manager):
         filter_manager.create_filter(
             name="Cool filter",
             command="irrelevant",
-            parent=filter_model.root_filter,
+            parent=filter_manager.root_filter,
         )
 
 
@@ -34,21 +34,21 @@ def test_create_filter(filter_manager):
     new_filter = filter_manager.create_filter(
         name="Cool filter",
         command="grep -k",
-        parent=filter_model.root_filter,
+        parent=filter_manager.root_filter,
     )
     assert filter_manager.get_filter("Cool filter") is new_filter
     assert new_filter.name == "Cool filter"
     assert new_filter.command == "grep -k"
-    assert new_filter.parent is filter_model.root_filter
-    assert filter_model._filters[new_filter.name] is new_filter
-    assert len(filter_model._filters) == 2
+    assert filter_manager.root_filter.children == [new_filter]
+    assert filter_manager._filters[new_filter.name] is new_filter
+    assert len(filter_manager._filters) == 2
 
 
 def test_get_filter(filter_manager):
     assert filter_manager.root_filter is filter_manager._filters[ROOT_FILTER_NAME]
     assert (
-        filter_model.get_filter(ROOT_FILTER_NAME)
-        is filter_model._filters[ROOT_FILTER_NAME]
+        filter_manager.get_filter(ROOT_FILTER_NAME)
+        is filter_manager._filters[ROOT_FILTER_NAME]
     )
 
     with pytest.raises(FilterNotFoundError):

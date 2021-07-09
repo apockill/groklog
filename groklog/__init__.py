@@ -1,9 +1,13 @@
+import os
 import sys
+from pathlib import Path
 
+import appdirs
 from asciimatics.exceptions import ResizeScreenError
 from asciimatics.scene import Scene
 from asciimatics.screen import Screen
 
+from groklog.filter_manager import FilterManager
 from groklog.process_node import ShellProcessIO
 from groklog.ui import scene_names
 from groklog.ui.app import GrokLog
