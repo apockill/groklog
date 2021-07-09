@@ -21,8 +21,7 @@ def main():
     os.environ.setdefault("ESCDELAY", "0")
     args = parse_args()
 
-    shell = ShellProcessIO()
-    filter_manager = FilterManager(shell=shell)
+    filter_manager = FilterManager(shell=ShellProcessIO())
 
     # Load configuration
     save_path = args.profile_directory / (args.profile + ".json")
@@ -32,7 +31,7 @@ def main():
     def groklog(screen: Screen, scene):
         scenes = [
             Scene(
-                [GrokLog(screen, shell=shell)],
+                [GrokLog(screen, filter_manager=filter_manager)],
                 duration=-1,
                 name=scene_names.SHELL_VIEW,
             ),
