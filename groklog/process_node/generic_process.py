@@ -8,9 +8,8 @@ from .base import ProcessNode
 
 
 class GenericProcessIO(ProcessNode):
-    def __init__(self, command: str):
-        super().__init__()
-        self.command = command
+    def __init__(self, name: str, command: str):
+        super().__init__(name=name, command=command)
 
         self._process = subprocess.Popen(
             self.command,

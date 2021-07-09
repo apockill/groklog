@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Dict, Optional
 
-from groklog.filter_manager import Filter, exceptions
+from groklog.filter_manager import exceptions
 from groklog.process_node import GenericProcessIO, ProcessNode, ShellProcessIO
 
 ROOT_FILTER_NAME = "Shell"
@@ -27,21 +27,17 @@ class FilterManager:
         """A dictionary of Filter.name: Filter"""
 
         # Register the "root" filter
-        self._filters[ROOT_FILTER_NAME] = Filter(
-            name=ROOT_FILTER_NAME,
-            command="",
-            process_node=shell,
-        )
+        self._filters[ROOT_FILTER_NAME] = shell
 
     def __iter__(self):
         for filter in self._filters.values():
             yield filter
 
     @property
-    def root_filter(self) -> Filter:
+    def root_filter(self) -> ProcessNode:
         return self.get_filter(ROOT_FILTER_NAME)
 
-    def get_filter(self, filter_name: str) -> Filter:
+    def get_filter(self, filter_name: str) -> ProcessNode:
         try:
             return self._filters[filter_name]
         except KeyError:
@@ -53,14 +49,12 @@ class FilterManager:
         self,
         name: str,
         command: str,
-        parent: Filter,
-        process_node: ProcessNode = None,
-    ) -> Filter:
+        parent: ProcessNode,
+    ) -> ProcessNode:
         """Create and register a new filter.
         :param name: The name of the filter
         :param command: The shell command to run
         :param parent: The children process to feed results into the new filter
-        :param process_node: The process node to subscribe to the parent
         :return: The new filter
         """
 
@@ -70,10 +64,9 @@ class FilterManager:
             )
 
         # Create and register the filter
-        filter = Filter(
+        filter = GenericProcessIO(
             name=name,
             command=command,
-            process_node=process_node,
         )
         parent.add_child(filter)
         self._filters[name] = filter

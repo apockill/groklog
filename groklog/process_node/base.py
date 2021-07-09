@@ -13,11 +13,24 @@ class ProcessNode(ABC, PubSubMixin):
         BYTES_DATA_STREAM = auto()
         """The process's stdout data as raw bytes"""
 
-    def __init__(self):
+    def __init__(self, name: str, command: str):
+        """
+        :param name: An arbitrary unique title for this process
+        :param command: The command being run in the process
+        """
         super().__init__()
+        self.name = name
+        self.command = command
+        self.children: List[ProcessNode] = []
+
         self._history_lock = RLock()
         self._bytes_history: bytes = b""
         self._string_history: str = ""
+
+    def add_child(self, process_node: "ProcessNode"):
+        """Adds and subscribes the child"""
+        self.subscribe(ProcessNode.Topic.BYTES_DATA_STREAM, process_node.write)
+        self.children.append(process_node)
 
     def _record_and_publish(self, data_bytes: bytes):
         """Record the data to the history and publish the bytes and string
@@ -55,3 +68,6 @@ class ProcessNode(ABC, PubSubMixin):
         self._process.kill()
         self._extraction_thread.join(timeout)
         self._process.wait(timeout)
+
+        for child in self.children:
+            child.close(timeout=timeout)

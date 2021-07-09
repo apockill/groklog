@@ -3,10 +3,11 @@ from queue import Queue
 import pytest
 
 from groklog.process_node import ShellProcessIO
-from tests.utils import drain_until_output_matches_regex, drain_until_queue_equals
-
-RE_SHELL_PREFIX = b".*\$"
-"""This matches bash shells <prefix>$ before each command."""
+from tests.utils import (
+    RE_SHELL_PREFIX,
+    drain_until_output_matches_regex,
+    drain_until_queue_equals,
+)
 
 
 @pytest.mark.parametrize(

@@ -21,7 +21,7 @@ from tests.utils import drain_until_queue_equals
 def test_generic_process(
     command: str, input_bytes: bytes, expected_output_bytes: bytes
 ):
-    process = GenericProcessIO(command=command)
+    process = GenericProcessIO(name="", command=command)
     output_queue = Queue()
     process.subscribe(process.Topic.BYTES_DATA_STREAM, output_queue.put)
     process.write(input_bytes)
@@ -36,7 +36,7 @@ def test_generic_process(
 
 
 def test_history_is_passed():
-    process = GenericProcessIO("cat")
+    process = GenericProcessIO(name="", command="cat")
 
     assert process._bytes_history == b""
     assert process._string_history == ""

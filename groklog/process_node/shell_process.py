@@ -16,7 +16,7 @@ class ShellProcessIO(ProcessNode):
     """
 
     def __init__(self):
-        super().__init__()
+        super().__init__(name="Shell", command="bash -i")
 
         # Open a pseudo TTY to control the interactive session.
         # Make it non-blocking.
@@ -25,7 +25,7 @@ class ShellProcessIO(ProcessNode):
         fcntl.fcntl(self._master, fcntl.F_SETFL, fl | os.O_NONBLOCK)
 
         self._process = subprocess.Popen(
-            ["bash", "-i"],
+            self.command.split(" "),
             preexec_fn=os.setsid,
             stdin=self._slave,
             stdout=self._slave,
