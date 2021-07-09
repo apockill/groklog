@@ -27,8 +27,10 @@ class FilterManager:
         """A dictionary of Filter.name: Filter"""
 
         # Register the "root" filter
-        self.create_filter(
-            name=ROOT_FILTER_NAME, command="", parent=None, process_node=shell
+        self._filters[ROOT_FILTER_NAME] = Filter(
+            name=ROOT_FILTER_NAME,
+            command="",
+            process_node=shell,
         )
 
     def __iter__(self):
@@ -51,11 +53,16 @@ class FilterManager:
         self,
         name: str,
         command: str,
-        parent: Optional[Filter],
+        parent: Filter,
         process_node: ProcessNode = None,
     ) -> Filter:
-        if parent is None and not isinstance(process_node, ShellProcessIO):
-            raise RuntimeError("The root filter must be of type ShellProcessIO")
+        """Create and register a new filter.
+        :param name: The name of the filter
+        :param command: The shell command to run
+        :param parent: The children process to feed results into the new filter
+        :param process_node: The process node to subscribe to the parent
+        :return: The new filter
+        """
 
         if name in self._filters:
             raise exceptions.DuplicateFilterError(
@@ -66,8 +73,8 @@ class FilterManager:
         filter = Filter(
             name=name,
             command=command,
-            parent=parent,
             process_node=process_node,
         )
+        parent.add_child(filter)
         self._filters[name] = filter
         return filter
