@@ -35,7 +35,7 @@ class ShellProcessIO(ProcessNode):
         # Start the shell and thread to pull data from it.
         self._running = True
         self._extraction_thread = Thread(
-            name=f"Thread({self})", target=self._background, daemon=True
+            name=f"{self.name} Extractor Thread", target=self._background, daemon=True
         )
         self._extraction_thread.start()
 
