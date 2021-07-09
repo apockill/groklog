@@ -46,11 +46,12 @@ def test_input_output(write_input: str, expected_output: str, shell: ShellProces
     for char in write_input:
         shell.write(chr(char).encode())
 
-    drain_until_queue_equals(output, write_input)
+    drain_until_queue_equals(output, write_input, timeout=10)
 
     # Now add a newline so the command is run
     shell.write(b"\r\n")
-    retrieved = drain_until_output_matches_regex(
-        output, regex=b"\r\n" + expected_output + RE_SHELL_PREFIX
+    drain_until_output_matches_regex(
+        output,
+        regex=b"\r\n" + expected_output + RE_SHELL_PREFIX,
+        timeout=10,
     )
-    print("GOT2", retrieved)
