@@ -24,8 +24,8 @@ class FilterCreator(BaseApp):
             name="Benis",
             title="Create Filter",
         )
-        self._filter_manager = filter_manager
-        self.profile_path = profile_path
+        self._filter_manager: FilterManager = filter_manager
+        self.profile_path: Path = profile_path
 
         dialog_layout = Layout([1, 30, 1, 30, 1], fill_frame=True)
 
@@ -117,7 +117,7 @@ class FilterCreator(BaseApp):
         except DuplicateFilterError:
             self.display_popup("There already exists a filter with that name!", ["Ok"])
             return
-        self.profile_path = self.data[self._SAVE_PATH_LABEL]
+        self.profile_path = Path(self.data[self._SAVE_PATH_LABEL])
 
         self._filter_manager.save_profile(self.profile_path)
 
