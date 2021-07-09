@@ -15,8 +15,8 @@ class ShellProcessIO(ProcessNode):
     the bash shell).
     """
 
-    def __init__(self):
-        super().__init__(name="Shell", command="bash -i")
+    def __init__(self, name="Shell", command="bash -i"):
+        super().__init__(name=name, command=command)
 
         # Open a pseudo TTY to control the interactive session.
         # Make it non-blocking.
