@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 from typing import Dict, Optional
 
@@ -17,6 +18,7 @@ class FilterManager:
     FILTER_PARENT = "parent_process"
     FILTER_NAME = "name"
     FILTER_COMMAND = "command"
+    FILTER_CHILDREN = "children"
 
     def __init__(self, shell: ShellProcessIO):
         """
@@ -71,3 +73,39 @@ class FilterManager:
         parent.add_child(filter)
         self._filters[name] = filter
         return filter
+
+    def save_profile(self, profile_path: Path):
+        def serialize_process_node(process_node: ProcessNode):
+            return {
+                self.FILTER_NAME: process_node.name,
+                self.FILTER_COMMAND: process_node.command,
+                self.FILTER_CHILDREN: [
+                    serialize_process_node(c) for c in process_node.children
+                ],
+            }
+
+        profile_path.parent.mkdir(parents=True, exist_ok=True)
+        with profile_path.open("w") as file:
+            json.dump(serialize_process_node(self.root_filter), file)
+
+    def load_profile(self, profile_path: Path):
+        def deserialize_process_node(node_info, parent=None):
+            if parent is None:
+                node = self.root_filter
+            else:
+                node = self.create_filter(
+                    name=node_info[self.FILTER_NAME],
+                    command=node_info[self.FILTER_COMMAND],
+                    parent=parent,
+                )
+
+            for child_info in node_info[self.FILTER_CHILDREN]:
+                deserialize_process_node(child_info, parent=node)
+            return node
+
+        with profile_path.open("r") as file:
+            profile_json = json.load(file)
+        deserialize_process_node(profile_json)
+
+    def close(self):
+        self.root_filter.close()
