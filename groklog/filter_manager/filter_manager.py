@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Iterator
 
 from groklog.filter_manager import exceptions
 from groklog.process_node import GenericProcessIO, ProcessNode, ShellProcessIO
@@ -31,12 +31,12 @@ class FilterManager:
         # Register the "root" filter
         self._filters[ROOT_FILTER_NAME] = shell
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[ProcessNode]:
         for filter in self._filters.values():
             yield filter
 
     @property
-    def root_filter(self) -> ProcessNode:
+    def root_filter(self) -> ShellProcessIO:
         return self.get_filter(ROOT_FILTER_NAME)
 
     def get_filter(self, filter_name: str) -> ProcessNode:
