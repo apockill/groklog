@@ -21,10 +21,7 @@ def shell():
 
 
 @pytest.fixture()
-def mock_shell():
-    class ShellMock(ShellProcessIO):
-        def __init__(self):
-            # Don't call the parent class here, to avoid starting subprocesses
-            pass
-
-    yield ShellMock()
+def filter_manager(shell):
+    manager = FilterManager(shell=shell)
+    yield manager
+    manager.close()
