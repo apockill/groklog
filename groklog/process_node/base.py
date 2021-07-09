@@ -28,6 +28,11 @@ class ProcessNode(ABC, PubSubMixin):
         self._bytes_history: bytes = b""
         self._string_history: str = ""
 
+    def __repr__(self):
+        return (
+            f"{self.__class__.__qualname__}(name={self.name}, command='{self.command}')"
+        )
+
     def add_child(self, process_node: "ProcessNode"):
         """Adds and subscribes the child"""
         self.subscribe(ProcessNode.Topic.BYTES_DATA_STREAM, process_node.write)

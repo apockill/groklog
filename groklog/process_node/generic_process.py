@@ -33,9 +33,6 @@ class GenericProcessIO(ProcessNode):
         )
         self._extraction_thread.start()
 
-    def __repr__(self):
-        return f"{self.__class__.__qualname__}(command='{self.command}')"
-
     def write(self, data: bytes):
         """Input data from an upstream process"""
         if not self._running:

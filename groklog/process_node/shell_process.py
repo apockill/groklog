@@ -39,9 +39,6 @@ class ShellProcessIO(ProcessNode):
         )
         self._extraction_thread.start()
 
-    def __repr__(self):
-        return f"{self.__class__.__qualname__}()"
-
     def _background(self):
         """
         Background thread running the IO between the widget and the TTY session.
