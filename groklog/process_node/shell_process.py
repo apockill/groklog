@@ -67,3 +67,9 @@ class ShellProcessIO(ProcessNode):
     def send_sigint(self):
         """Simulate the user sending Ctrl+C to the underlying shell"""
         self.write("\x03".encode())
+
+    def close(self, timeout=None):
+        """While not necessary, sending a sigint significantly speeds up the closing
+        process, which is great for tests."""
+        self.send_sigint()
+        super().close(timeout=timeout)
