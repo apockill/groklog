@@ -45,7 +45,6 @@ class FilterCreator(BaseApp):
             ),
             column=self._SYSTEM_SETTINGS_COLUMN,
         )
-        dialog_layout.add_widget(save_path_widget, column=self._SYSTEM_SETTINGS_COLUMN)
 
         # Add the widgets for the right column
         dialog_layout.add_widget(
@@ -107,19 +106,28 @@ class FilterCreator(BaseApp):
             return
 
         try:
-            self._filter_model.create_filter(
-                name=self.data[FilterModel.FILTER_NAME],
-                command=self.data[FilterModel.FILTER_COMMAND],
-                parent=self.data[FilterModel.FILTER_PARENT],
+            parent_index = self.data[FilterManager.FILTER_PARENT]
+            parent_name = self.source_drop_down.options[parent_index][0]
+            parent_filter = self._filter_manager.get_filter(parent_name)
+            self._filter_manager.create_filter(
+                name=self.data[FilterManager.FILTER_NAME],
+                command=self.data[FilterManager.FILTER_COMMAND],
+                parent=parent_filter,
             )
         except DuplicateFilterError:
             self.display_popup("There already exists a filter with that name!", ["Ok"])
             return
+        self.profile_path = self.data[self._SAVE_PATH_LABEL]
+
+        self._filter_manager.save_profile(self.profile_path)
 
         self.reset()
         self.change_scene(scene_name=scene_names.SHELL_VIEW)
 
     def reset(self):
+        self.source_drop_down.options = [
+            (f.name, i) for i, f in enumerate(self._filter_manager)
+        ]
         super().reset()
         self.data = {
             FilterManager.FILTER_PARENT: 0,
