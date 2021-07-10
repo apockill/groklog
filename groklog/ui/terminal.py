@@ -23,11 +23,9 @@ class Terminal(Widget):
         name: str,
         shell: ShellProcessIO,
         height: int,
-        render_max_lines: int = 100,
         show_cursor: bool = True,
     ):
         super(Terminal, self).__init__(name)
-        self.render_max_lines = render_max_lines
         self._required_height = height
         self._parser = AnsiTerminalParser()
         self._canvas = None
@@ -108,7 +106,9 @@ class Terminal(Widget):
         shell to dump huge amounts of data, but the UI not to get overwhelmed
         (after all, the terminal is unlikely to incredibly tall).
         """
-        lines = value.split("\n")[-self.render_max_lines :]
+        canvas_height, _ = self._canvas.dimensions
+        lines = value.split("\n")[-canvas_height:]
+
         for i, line in enumerate(lines):
             self._parser.reset(line, self._current_colours)
             for offset, command, params in self._parser.parse():
