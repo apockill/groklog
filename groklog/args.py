@@ -3,7 +3,6 @@ from pathlib import Path
 
 import appdirs
 
-
 long_description = """
 Welcome to GrokLog!
 
