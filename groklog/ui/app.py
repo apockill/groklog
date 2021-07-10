@@ -12,7 +12,7 @@ from groklog.ui.terminal import Terminal
 
 
 class GrokLog(BaseApp):
-    def __init__(self, screen, shell: ShellProcessIO):
+    def __init__(self, screen, filter_manager: FilterManager):
         super().__init__(
             screen,
             screen.height,
@@ -25,7 +25,11 @@ class GrokLog(BaseApp):
 
         # Create the Shell layout
         shell_layout = Layout([100], fill_frame=True)
-        terminal = Terminal(name="term", shell=shell, height=widgets.Widget.FILL_COLUMN)
+        terminal = Terminal(
+            name="term",
+            shell=filter_manager.root_filter,
+            height=widgets.Widget.FILL_COLUMN,
+        )
         self.add_layout(shell_layout)
         shell_layout.add_widget(terminal)
         shell_layout.add_widget(widgets.Divider())
@@ -47,7 +51,7 @@ class GrokLog(BaseApp):
             if event.key_code in [Screen.ctrl("c")]:
                 # Catch Ctrl+C and pass it on to the sub shell
                 self.display_toast("Press Escape to close GrokLog!")
-                self.shell.send_sigint()
+                self.filter_manager.root_filter.send_sigint()
                 return
 
         super().process_event(event)
