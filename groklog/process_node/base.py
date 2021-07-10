@@ -54,7 +54,7 @@ class ProcessNode(ABC, PubSubMixin):
         access to the full data history of the process."""
 
         with self._history_lock:
-            # If any history has been writte
+            # If any history has been written
             if len(self._string_history):
                 if topic is self.Topic.STRING_DATA_STREAM:
                     subscriber(self._string_history)
