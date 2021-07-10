@@ -3,15 +3,22 @@ from pathlib import Path
 
 import appdirs
 
+
 long_description = """
 Welcome to GrokLog!
 
-GrokLog is a tool for creating process trees, where a root process (an ordinary shell)
-has it's output piped into the stdin of other processes. This allows you to easily 
-build complex pipe filters, while viewing the output every step of the way. 
+GrokLog is a tool for creating "process trees", that is, a root process (an ordinary shell)
+has its output piped into the stdin of other processes. Those other processes can in 
+turn have _their_ stdout piped into even more processes. Then, groklog lets you view the 
+stdout of every process in the tree. 
+ 
+The benefit of all of this is that you can filter logs or other streams using the 
+various unix tools you are already familiar with, and do so in a much more sophisticated 
+way. 
 
-On top of that, building profiles is quick and easy, so after configuring for one use 
-case, you can easily load that profile up again!
+On top of that, building profiles is quick and easy, so after spending some time 
+configuring, everything is saved to a profile and the next time you run groklog you can 
+jump right in where you left off!
 """
 
 
