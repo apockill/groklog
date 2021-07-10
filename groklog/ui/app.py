@@ -23,8 +23,6 @@ class GrokLog(BaseApp):
             title="GrokLog",
         )
 
-        self.shell = shell
-
         # Create the Shell layout
         shell_layout = Layout([100], fill_frame=True)
         terminal = Terminal(name="term", shell=shell, height=widgets.Widget.FILL_COLUMN)
