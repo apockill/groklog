@@ -5,10 +5,11 @@ from asciimatics.event import KeyboardEvent
 from asciimatics.screen import Screen
 from asciimatics.widgets import Layout
 
-from groklog.process_node import ShellProcessIO
-from groklog.ui import scene_names
-from groklog.ui.base_app import BaseApp
+from groklog.filter_manager import FilterManager
 from groklog.ui.terminal import Terminal
+
+from . import scene_names
+from .base_app import BaseApp
 
 
 class GrokLog(BaseApp):
@@ -22,6 +23,7 @@ class GrokLog(BaseApp):
             name="GrokLog",
             title="GrokLog",
         )
+        self.filter_manager = filter_manager
 
         # Create the Shell layout
         shell_layout = Layout([100], fill_frame=True)

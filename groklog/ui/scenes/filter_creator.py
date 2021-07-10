@@ -5,8 +5,9 @@ from asciimatics.exceptions import InvalidFields
 from asciimatics.widgets import Frame, Layout
 
 from groklog.filter_manager import DuplicateFilterError, FilterManager
-from groklog.ui import scene_names
-from groklog.ui.base_app import BaseApp
+
+from . import scene_names
+from .base_app import BaseApp
 
 
 class FilterCreator(BaseApp):

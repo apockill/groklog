@@ -8,9 +8,7 @@ from asciimatics.screen import Screen
 from groklog.args import parse_args
 from groklog.filter_manager import FilterManager
 from groklog.process_node import ShellProcessIO
-from groklog.ui import scene_names
-from groklog.ui.app import GrokLog
-from groklog.ui.filter_creator import FilterCreator
+from groklog.ui.scenes import FilterCreator, GrokLog, scene_names
 
 from .version import __version__
 

@@ -5,7 +5,7 @@ from asciimatics.event import KeyboardEvent
 from asciimatics.exceptions import NextScene, StopApplication
 from asciimatics.screen import Screen
 
-from .theming import set_theme
+from groklog.ui.theming import set_theme
 
 
 class BaseApp(widgets.Frame):
