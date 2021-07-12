@@ -41,10 +41,32 @@ class GrokLog(BaseApp):
             "Add Filter", partial(self.change_scene, scene_names.FILTER_CREATOR_SCENE)
         )
 
-        tab_layout = Layout([1, 0, 1, 1, 1, 1, 1])
-        self.add_layout(tab_layout)
-        tab_layout.add_widget(add_filter_button, 0)
-        tab_layout.add_widget(widgets.VerticalDivider(), 1)
+        self.tab_layout = Layout([1, 0, 1, 1, 1, 1, 1])
+        self.add_layout(self.tab_layout)
+        self.create_tab_buttons()
+
+        self.fix()
+
+    def create_tab_buttons(self):
+        """Create all of the tab buttons again"""
+        self.tab_layout.clear_widgets()
+        self.tab_layout.add_widget(
+            widgets.Button(
+                text="Add Filter",
+                on_click=partial(self.change_scene, scene_names.FILTER_CREATOR_SCENE),
+            ),
+            column=0,
+        )
+        self.tab_layout.add_widget(widgets.VerticalDivider(), column=1)
+
+        for column, filter in enumerate(self.filter_manager, 2):
+            self.tab_layout.add_widget(
+                widgets.Button(
+                    text=filter.name,
+                    on_click=lambda filter=filter: None,
+                ),
+                column=column,
+            )
 
         self.fix()
 
