@@ -65,7 +65,7 @@ class FilterCreator(BaseApp):
             widgets.Text(
                 label="Filter Name",
                 name=FilterManager.FILTER_NAME,
-                validator=lambda val: 0 < len(val) < 10,
+                validator=lambda val: 0 < len(val) < 15,
             ),
             column=self._NEW_FILTER_PARAMETERS_COLUMN,
         )
@@ -103,7 +103,7 @@ class FilterCreator(BaseApp):
         try:
             self.save(validate=True)
         except InvalidFields:
-            self.display_popup("Please fill in all of the fields!", ["Ok"])
+            self.display_popup("Please fix any fields highlighted in yellow.", ["Ok"])
             return
 
         try:
