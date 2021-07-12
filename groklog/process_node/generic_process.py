@@ -1,5 +1,6 @@
 import fcntl
 import os
+import shlex
 import subprocess
 from threading import RLock, Thread
 from time import sleep
@@ -12,8 +13,8 @@ class GenericProcessIO(ProcessNode):
         super().__init__(name=name, command=command)
 
         self._process = subprocess.Popen(
-            self.command,
-            shell=True,
+            shlex.split(self.command),
+            shell=False,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
