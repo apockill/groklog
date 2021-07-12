@@ -56,4 +56,4 @@ class GrokLog(BaseApp):
                 self.filter_manager.root_filter.send_sigint()
                 return
 
-        super().process_event(event)
+        return super().process_event(event)
