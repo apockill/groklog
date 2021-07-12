@@ -60,7 +60,7 @@ class ProcessNode(ABC, PubSubMixin):
                     subscriber(self._string_history)
                 elif topic is self.Topic.BYTES_DATA_STREAM:
                     subscriber(self._bytes_history)
-            super().subscribe(topic, subscriber)
+            return super().subscribe(topic, subscriber)
 
     @abstractmethod
     def write(self, val: bytes):

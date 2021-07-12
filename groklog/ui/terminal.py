@@ -25,7 +25,7 @@ class Terminal(Widget):
         height: int,
         show_cursor: bool = True,
     ):
-        super(Terminal, self).__init__(name)
+        super().__init__(name)
         self._required_height = height
         self._parser = AnsiTerminalParser()
         self._canvas = None
@@ -81,7 +81,7 @@ class Terminal(Widget):
         """
         Resize the widget (and underlying TTY) to the required size.
         """
-        super(Terminal, self).set_layout(x, y, offset, w, h)
+        super().set_layout(x, y, offset, w, h)
         self._canvas = Canvas(self._frame.canvas, h, w, x=x, y=y)
         winsize = struct.pack("HHHH", h, w, 0, 0)
         fcntl.ioctl(self._shell._slave, termios.TIOCSWINSZ, winsize)

@@ -49,7 +49,7 @@ class FilterViewer(TextBox):
         if len(full_stream):
             self._add_stream(full_stream)
 
-        super().update(frame_no)
+        return super().update(frame_no)
 
     def _add_stream(self, append_logs: str):
         """Append text to the log stream. This function should receive input from
