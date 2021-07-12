@@ -57,4 +57,4 @@ class BaseApp(widgets.Frame):
             if event.key_code == Screen.KEY_ESCAPE:
                 # Close the program when Escape or End is pressed
                 raise StopApplication("")
-        super().process_event(event)
+        return super().process_event(event)
