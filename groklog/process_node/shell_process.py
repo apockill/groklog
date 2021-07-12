@@ -2,6 +2,7 @@ import fcntl
 import os
 import pty
 import select
+import signal
 import subprocess
 from threading import Thread
 
@@ -63,7 +64,7 @@ class ShellProcessIO(ProcessNode):
 
     def send_sigint(self):
         """Simulate the user sending Ctrl+C to the underlying shell"""
-        self.write("\x03".encode())
+        self._process.send_signal(signal.SIGINT)
 
     def close(self, timeout=None):
         """While not necessary, sending a sigint significantly speeds up the closing
