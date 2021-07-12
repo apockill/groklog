@@ -99,12 +99,12 @@ class Terminal(Widget):
             return
         return event
 
-    def _add_stream(self, value):
+    def _add_stream(self, value: str):
         """
         Process any output from the TTY. The value is split into lines, and only
         the last X lines will get rendered. This makes it possible for the
-        shell to dump huge amounts of data, but the UI not to get overwhelmed
-        (after all, the terminal is unlikely to incredibly tall).
+        shell to dump huge amounts of data, but only the lines that fit on the
+        height of the terminal will ever be rendered.
         """
         canvas_height, _ = self._canvas.dimensions
         lines = value.split("\n")[-canvas_height:]
