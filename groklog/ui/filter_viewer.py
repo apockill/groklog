@@ -19,28 +19,20 @@ class FilterViewer(TextBox):
             line_wrap=True,
             parser=AnsiTerminalParser(),
         )
-        self.filter_manager = filter_manager
+        self.filter = filter
         self._data_queue = Queue()
         self.custom_colour = "filter_viewer"
+
+        # Create subscriptions
+        self._data_queue = Queue()
+        filter.subscribe(ProcessNode.Topic.STRING_DATA_STREAM, self._data_queue.put)
+        self._value = [ColouredText("", self._parser, colour=None)]
 
     def process_event(self, event):
         return super().process_event(event)
 
     def reset(self):
         return super().reset()
-
-    def subscribe_to_filter(self, filter: GenericProcessIO):
-        """Reset whatever is being shown, and subscribe the _data_queue to the new
-        filter"""
-
-        # Create a new queue so that any previous subscriptions are garbage collected,
-        # and so that no text from other filters gets mixed into this new one.
-        self._data_queue = Queue()
-        filter.subscribe(ProcessNode.Topic.STRING_DATA_STREAM, self._data_queue.put)
-
-        # Clean any existing text and reset the view position
-        self._value = [ColouredText("", self._parser, colour=None)]
-        self.reset()
 
     def update(self, frame_no):
         full_stream = ""
