@@ -31,9 +31,6 @@ class FilterViewer(TextBox):
     def process_event(self, event):
         return super().process_event(event)
 
-    def reset(self):
-        return super().reset()
-
     def update(self, frame_no):
         while self._processed_data_queue.qsize():
             self._value += self._processed_data_queue.get_nowait()
