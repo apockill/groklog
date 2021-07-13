@@ -54,10 +54,6 @@ def main():
             sys.exit(0)
         except ResizeScreenError as e:
             last_scene = e.scene
-        except ValueError as e:
-            # Screen will be blank when it's too small. It's better than the
-            # application crashing, I suppose
-            pass
 
 
 if __name__ == "__main__":
