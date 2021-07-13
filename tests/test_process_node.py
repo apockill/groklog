@@ -56,10 +56,11 @@ def test_history_is_passed():
 
     # Now any new subscriber should get the first input upon subscription
     second_subscriber = Queue()
-    process.subscribe(process.Topic.BYTES_DATA_STREAM, second_subscriber.put)
-    # We specifically use get_nowait because the subscribe call should have
-    # _immediately_ dumped the process history into the subscriber callable.
-    second_subscriber_output = second_subscriber.get_nowait()
+    process.subscribe_with_history(
+        process.Topic.BYTES_DATA_STREAM, second_subscriber.put
+    )
+
+    second_subscriber_output = second_subscriber.get(timeout=5)
     assert first_subscriber.qsize() == 0
     assert second_subscriber_output == first_input
 

@@ -46,7 +46,9 @@ class ShellProcessIO(ProcessNode):
         """
         while self._running:
             # Wait for any of the file descriptors to have data, with a 1 second timeout
-            ready, _, _ = select.select([self._master], [], [], 1)
+            ready, _, _ = select.select([self._master], [], [], 0.1)
+            self._onboard_new_subscribers()
+
             for stream in ready:
                 data_bytes = b""
                 while self._running:

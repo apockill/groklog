@@ -54,6 +54,9 @@ def test_created_filters_are_subscribed(filter_manager):
         parent=filter_manager.root_filter,
     )
 
+    # Wait for subscriptions to be processed in the background thread
+    filter_manager.root_filter._new_subscribers.join()
+
     # Verify that the child filter was subscribed to the parent
     subscription_weakref = filter_manager.root_filter._to_registered_weakref(
         topic=ProcessNode.Topic.BYTES_DATA_STREAM,

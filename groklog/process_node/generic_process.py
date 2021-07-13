@@ -45,6 +45,8 @@ class GenericProcessIO(ProcessNode):
 
     def _background(self):
         while self._running:
+            self._onboard_new_subscribers()
+
             # Read in a non-blocking fashion up to a certain number of characters.
             data_bytes = self._process.stdout.read1(102400)
 

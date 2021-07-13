@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
 from enum import Enum, auto
+from queue import Queue
 from threading import RLock
-from typing import List
+from typing import Callable, List
 
-from pubsus import PubSubMixin
+from pubsus import DuplicateSubscriberError, PubSubMixin
 
 
 class ProcessNode(ABC, PubSubMixin):
@@ -24,6 +25,12 @@ class ProcessNode(ABC, PubSubMixin):
         self.command = command
         self.children: List[ProcessNode] = []
 
+        self._new_subscribers: Queue[Tuple[ProcessNode.Topic, Callable]] = Queue()
+        """This queue contains incoming subscribers that have requested to have 
+        the full history applied. This is a special case, because the callback must be
+        called once with the full history. This is done in the background thread, so that
+        subscribing isn't a blocking operation. """
+
         self._history_lock = RLock()
         self._bytes_history: bytes = b""
         self._string_history: str = ""
@@ -33,7 +40,9 @@ class ProcessNode(ABC, PubSubMixin):
 
     def add_child(self, process_node: "ProcessNode"):
         """Adds and subscribes the child"""
-        self.subscribe(ProcessNode.Topic.BYTES_DATA_STREAM, process_node.write)
+        self.subscribe_with_history(
+            ProcessNode.Topic.BYTES_DATA_STREAM, process_node.write
+        )
         self.children.append(process_node)
 
     def _record_and_publish(self, data_bytes: bytes):
@@ -49,18 +58,35 @@ class ProcessNode(ABC, PubSubMixin):
             self.publish(self.Topic.STRING_DATA_STREAM, data_string)
             self.publish(self.Topic.BYTES_DATA_STREAM, data_bytes)
 
-    def subscribe(self, topic, subscriber):
-        """When subscribing to a process node, the subscriber should get
-        access to the full data history of the process."""
+    def subscribe_with_history(self, topic: "ProcessNode.Topic", subscriber: Callable):
+        """This function will subscribe a subscriber to the full history that has ever
+        been received by this node. The callback will occur in the background thread.
+        """
+        self._new_subscribers.put((topic, subscriber))
 
-        with self._history_lock:
-            # If any history has been written
+    def _onboard_new_subscribers(self):
+        """Onboard any subscribers who wish to have the full history before adding more
+        history.
+        """
+
+        def onboard_subscriber(topic, subscriber):
+            if self.is_subscribed(topic, subscriber):
+                raise DuplicateSubscriberError("This topic/subscriber already exists!")
+
+            # If any history has been written, pass it along
             if len(self._string_history):
                 if topic is self.Topic.STRING_DATA_STREAM:
                     subscriber(self._string_history)
                 elif topic is self.Topic.BYTES_DATA_STREAM:
                     subscriber(self._bytes_history)
-            return super().subscribe(topic, subscriber)
+                else:
+                    raise RuntimeError("Hey, this is all invalid!")
+            self.subscribe(topic, subscriber)
+
+        with self._history_lock:
+            while self._running and self._new_subscribers.qsize():
+                onboard_subscriber(*self._new_subscribers.get_nowait())
+                self._new_subscribers.task_done()
 
     @abstractmethod
     def write(self, val: bytes):
