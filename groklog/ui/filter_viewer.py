@@ -43,7 +43,7 @@ class FilterViewer(TextBox):
         """Append text to the log stream. This function should receive input from
         the filter and display it."""
 
-        last_colour = self._value[-1].last_colour if len(self._value) else None
+        last_colour = self._value[-1].last_colour
 
         new_value = []
         for line in append_logs.split("\n"):
