@@ -13,7 +13,7 @@ class FilterViewer(TextBox):
         super().__init__(
             height,
             name=f"FilterViewer-{filter.name}-{filter.command})",
-            readonly=False,
+            readonly=True,
             as_string=False,
             line_wrap=True,
             parser=AnsiTerminalParser(),
