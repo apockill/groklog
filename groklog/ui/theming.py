@@ -33,7 +33,7 @@ GROKLOG_THEME = {
         Screen.COLOUR_CYAN,
     ),
     # This is a custom color for the FilterViewer widget
-    "filter_viewer": (Screen.COLOUR_WHITE, Screen.A_BOLD, Screen.COLOUR_BLACK),
+    "filter_viewer": (Screen.COLOUR_DEFAULT, Screen.A_BOLD, Screen.COLOUR_BLACK),
 }
 
 warning = widgets.utilities.THEMES["warning"]
