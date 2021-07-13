@@ -21,6 +21,7 @@ class FilterViewer(TextBox):
         self.filter = filter
         self._data_queue = Queue()
         self.custom_colour = "filter_viewer"
+        self._value = [ColouredText("", self._parser, colour=None)]
 
         # Create subscriptions
         self._processed_data_queue = Queue()
