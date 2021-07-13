@@ -5,7 +5,6 @@ from asciimatics.parsers import AnsiTerminalParser
 from asciimatics.strings import ColouredText
 from asciimatics.widgets import TextBox
 
-from groklog.filter_manager import FilterManager
 from groklog.process_node import GenericProcessIO, ProcessNode
 
 
@@ -24,9 +23,9 @@ class FilterViewer(TextBox):
         self.custom_colour = "filter_viewer"
 
         # Create subscriptions
-        self._data_queue = Queue()
-        filter.subscribe(ProcessNode.Topic.STRING_DATA_STREAM, self._data_queue.put)
-        self._value = [ColouredText("", self._parser, colour=None)]
+        self._processed_data_queue = Queue()
+        """self._add_stream pushes to here, and self.update pulls the results"""
+        filter.subscribe(ProcessNode.Topic.STRING_DATA_STREAM, self._add_stream)
 
     def process_event(self, event):
         return super().process_event(event)
@@ -35,11 +34,10 @@ class FilterViewer(TextBox):
         return super().reset()
 
     def update(self, frame_no):
-        full_stream = ""
-        while self._data_queue.qsize():
-            full_stream += self._data_queue.get_nowait()
-        if len(full_stream):
-            self._add_stream(full_stream)
+        while self._processed_data_queue.qsize():
+            self._value += self._processed_data_queue.get_nowait()
+
+        self.reset()
 
         return super().update(frame_no)
 
@@ -55,8 +53,8 @@ class FilterViewer(TextBox):
             new_value.append(value)
             last_colour = value.last_colour
 
-        # Concatenate existing lines with the new lines
-        self._value += new_value
+        # Put this in a queue to be picked up by the main thread, in self.update
+        self._processed_data_queue.put(new_value)
 
         self.reset()
 
