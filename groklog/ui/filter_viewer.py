@@ -56,8 +56,6 @@ class FilterViewer(TextBox):
         # Put this in a queue to be picked up by the main thread, in self.update
         self._processed_data_queue.put(new_value)
 
-        self.reset()
-
     @property
     def value(self):
         self._value = [ColouredText("", self._parser, colour=None)]
