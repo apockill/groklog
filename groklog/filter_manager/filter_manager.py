@@ -24,6 +24,7 @@ class FilterManager:
         """
         :param shell: The shell, which will be the 'root' process for input
         """
+        self.selected_filter = shell
 
         self._filters: Dict[str, Filter] = {}
         """A dictionary of Filter.name: Filter"""

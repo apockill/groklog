@@ -6,6 +6,8 @@ from asciimatics.screen import Screen
 from asciimatics.widgets import Layout
 
 from groklog.filter_manager import FilterManager
+from groklog.process_node import ShellProcessIO
+from groklog.ui.filter_viewer import FilterViewer
 from groklog.ui.terminal import Terminal
 
 from . import scene_names
@@ -25,25 +27,47 @@ class GrokLog(BaseApp):
         )
         self.filter_manager = filter_manager
 
-        # Create the Shell layout
-        shell_layout = Layout([100], fill_frame=True)
-        terminal = Terminal(
-            name="term",
-            shell=filter_manager.root_filter,
-            height=widgets.Widget.FILL_COLUMN,
-        )
-        self.add_layout(shell_layout)
-        shell_layout.add_widget(terminal)
-        shell_layout.add_widget(widgets.Divider())
+        # Register all of the filter widgets
+        self._filter_widgets = {}
+        for filter in self.filter_manager:
+            self.register_filter(filter)
+
+        self.central_layout = Layout([100], fill_frame=True)
+        self.add_layout(self.central_layout)
+        self.view_filter(self.filter_manager.selected_filter)
 
         # Create the Tab Layout and buttons for it
-        add_filter_button = widgets.Button(
-            "Add Filter", partial(self.change_scene, scene_names.FILTER_CREATOR_SCENE)
-        )
-
         self.tab_layout = Layout([1, 0, 1, 1, 1, 1, 1])
         self.add_layout(self.tab_layout)
         self.create_tab_buttons()
+
+        self.fix()
+
+    def register_filter(self, filter):
+        """Create a widget for this filter and save it under self._filter_widgets"""
+        if isinstance(filter, ShellProcessIO):
+            widget = Terminal(
+                name="term",
+                shell=filter,
+                height=widgets.Widget.FILL_COLUMN,
+            )
+        else:
+            widget = FilterViewer(filter=filter, height=widgets.Widget.FILL_COLUMN)
+
+        self._filter_widgets[filter] = widget
+
+    def view_filter(self, filter):
+        """Change the actively shown central widget"""
+        self.filter_manager.selected_filter = filter
+
+        # Replace the central layout widget
+        new_widget = self._filter_widgets[filter]
+        self.central_layout.clear_widgets()
+        self.central_layout.add_widget(new_widget)
+        self.central_layout.add_widget(widgets.Divider())
+
+        # This seems to put the widget into the update() loop
+        self.central_layout.focus(force_widget=new_widget)
 
         self.fix()
 
@@ -63,7 +87,7 @@ class GrokLog(BaseApp):
             self.tab_layout.add_widget(
                 widgets.Button(
                     text=filter.name,
-                    on_click=lambda filter=filter: None,
+                    on_click=lambda filter=filter: self.view_filter(filter),
                 ),
                 column=column,
             )

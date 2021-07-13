@@ -10,11 +10,11 @@ from groklog.process_node import GenericProcessIO, ProcessNode
 
 
 class FilterViewer(TextBox):
-    def __init__(self, filter_manager: FilterManager, height: int):
+    def __init__(self, filter: GenericProcessIO, height: int):
         super().__init__(
             height,
-            name="FilterViewer",
-            readonly=True,
+            name=f"FilterViewer-{filter.name}-{filter.command})",
+            readonly=False,
             as_string=False,
             line_wrap=True,
             parser=AnsiTerminalParser(),
