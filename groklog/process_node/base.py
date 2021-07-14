@@ -43,13 +43,15 @@ class ProcessNode(ABC, PubSubMixin):
     def add_child(self, process_node: "ProcessNode"):
         """Adds and subscribes the child"""
         self.subscribe_with_history(
-            ProcessNode.Topic.BYTES_DATA_STREAM, process_node.write
+            ProcessNode.Topic.BYTES_DATA_STREAM, process_node.write, blocking=False
         )
         self.children.append(process_node)
 
     def _record_and_publish(self, data_bytes: bytes):
         """Record the data to the history and publish the bytes and string
         variants of the data."""
+        # Scrub all control characters out of the string so they don't get passed on to
+        # child process and kill them too
 
         data_string: str = data_bytes.decode("utf8", "replace")
 
@@ -60,21 +62,31 @@ class ProcessNode(ABC, PubSubMixin):
             self.publish(self.Topic.STRING_DATA_STREAM, data_string)
             self.publish(self.Topic.BYTES_DATA_STREAM, data_bytes)
 
-    def subscribe_with_history(self, topic: "ProcessNode.Topic", subscriber: Callable):
+    def subscribe_with_history(
+        self, topic: "ProcessNode.Topic", subscriber: Callable, *, blocking
+    ):
         """This function will subscribe a subscriber to the full history that has ever
         been received by this node. The callback will occur in the background thread.
         """
-        self._new_subscribers.put((topic, subscriber))
+        if blocking:
+            self._onboard_subscriber(topic, subscriber)
+        else:
+            self._new_subscribers.put((topic, subscriber))
 
     def _onboard_new_subscribers(self):
         """Onboard any subscribers who wish to have the full history before adding more
         history.
         """
 
-        def onboard_subscriber(topic, subscriber):
-            if self.is_subscribed(topic, subscriber):
-                raise DuplicateSubscriberError("This topic/subscriber already exists!")
+        with self._history_lock:
+            while self._running and self._new_subscribers.qsize():
+                self._onboard_subscriber(*self._new_subscribers.get_nowait())
+                self._new_subscribers.task_done()
 
+    def _onboard_subscriber(self, topic, subscriber):
+        if self.is_subscribed(topic, subscriber):
+            raise DuplicateSubscriberError("This topic/subscriber already exists!")
+        with self._history_lock:
             # If any history has been written, pass it along
             if len(self._string_history):
                 if topic is self.Topic.STRING_DATA_STREAM:
@@ -82,13 +94,8 @@ class ProcessNode(ABC, PubSubMixin):
                 elif topic is self.Topic.BYTES_DATA_STREAM:
                     subscriber(self._bytes_history)
                 else:
-                    raise RuntimeError("Hey, this is all invalid!")
+                    raise ValueError("Invalid topic")
             self.subscribe(topic, subscriber)
-
-        with self._history_lock:
-            while self._running and self._new_subscribers.qsize():
-                onboard_subscriber(*self._new_subscribers.get_nowait())
-                self._new_subscribers.task_done()
 
     @abstractmethod
     def write(self, val: bytes):
