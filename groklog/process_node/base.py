@@ -8,6 +8,8 @@ from pubsus import DuplicateSubscriberError, PubSubMixin
 
 
 class ProcessNode(ABC, PubSubMixin):
+    _READ_MAX_BYTES = 102400
+
     class Topic(Enum):
         STRING_DATA_STREAM = auto()
         """The process's stdout data, but converted to a utf-8 encoded string"""

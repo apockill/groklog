@@ -53,7 +53,7 @@ class ShellProcessIO(ProcessNode):
                 data_bytes = b""
                 while self._running:
                     try:
-                        new_bytes = os.read(stream, 102400)
+                        new_bytes = os.read(stream, self._READ_MAX_BYTES)
                     except BlockingIOError:
                         break
                     data_bytes += new_bytes

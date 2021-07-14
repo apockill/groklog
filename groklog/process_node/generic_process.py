@@ -48,7 +48,7 @@ class GenericProcessIO(ProcessNode):
             self._onboard_new_subscribers()
 
             # Read in a non-blocking fashion up to a certain number of characters.
-            data_bytes = self._process.stdout.read1(102400)
+            data_bytes = self._process.stdout.read1(self._READ_MAX_BYTES)
 
             if len(data_bytes) == 0:
                 # Prevent a busyloop where there's no data in stdout.
