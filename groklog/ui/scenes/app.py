@@ -122,7 +122,11 @@ class GrokLog(BaseApp):
             if event.key_code in [Screen.ctrl("c")]:
                 # Catch Ctrl+C and pass it on to the sub shell
                 self.display_toast("Press Escape to close GrokLog!")
-                self.filter_manager.root_filter.send_sigint()
+                if (
+                    self.filter_manager.selected_filter
+                    is self.filter_manager.root_filter
+                ):
+                    self.filter_manager.root_filter.send_sigint()
                 return
 
         return super().process_event(event)
