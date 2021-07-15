@@ -228,8 +228,11 @@ class Terminal(Widget):
                 ShellProcessIO.Topic.STRING_DATA_STREAM, self._data_queue.put
             )
 
-        self._shell.subscribe(
-            ShellProcessIO.Topic.STRING_DATA_STREAM, self._data_queue.put
+        # TODO: unsubscribing and subscribing with block=False is NOT thread safe.
+        #       for that reason, we set blocking=True for this call. Investigate
+        #       making a robust shell.is_subscribed call.
+        self._shell.subscribe_with_history(
+            ShellProcessIO.Topic.STRING_DATA_STREAM, self._data_queue.put, blocking=True
         )
 
     def required_height(self, offset, width):
