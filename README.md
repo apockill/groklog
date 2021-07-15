@@ -7,22 +7,22 @@ stdout of every process in the tree.
  
 Here's an example of a process tree you could easily create:
 ```shell
-                              Shell
-                              ──┬──
-                                │  
-                                │   The shell stdout and stderr combined are piped into subscribing filters.
-                                │ 
-          ┌─────────────────────┼──────────────────────┐
-          │                     │                      │
-          ▼                     ▼                      ▼
-      Name: 'Unique Lines'  Name: 'Line Numbers'   Name: 'Error logs'
-       Cmd: 'uniq -c'        Cmd: 'cat -b'          Cmd: 'grep -C 10 --line-buffered error' 
-                                                       │
-                                                       │   The 'Error Logs' stdout+stderr is piped to the filter below.
-                                                       │
-                                                       ▼
-                                                   Name: 'Rainbow Errors'
-                                                    Cmd: 'lolcat -f'
+                        Shell
+                        ──┬──
+                          │  
+                          │   The shell stdout and stderr combined are piped into subscribing filters.
+                          │ 
+    ┌─────────────────────┼──────────────────────┐
+    │                     │                      │
+    ▼                     ▼                      ▼
+Name: 'Unique Lines'  Name: 'Line Numbers'   Name: 'Error logs'
+ Cmd: 'uniq -c'        Cmd: 'cat -b'          Cmd: 'grep -C 10 --line-buffered error' 
+                                                 │
+                                                 │   The 'Error Logs' stdout+stderr is piped to the filter below.
+                                                 │
+                                                 ▼
+                                             Name: 'Rainbow Errors'
+                                              Cmd: 'lolcat -f'
 ```
 
 The benefit of all of this is that you can filter logs or other streams using the 
