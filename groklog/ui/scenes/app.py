@@ -72,6 +72,9 @@ class GrokLog(BaseApp):
 
     def view_filter(self, filter):
         """Change the actively shown central widget"""
+        if self.scene is not None:
+            self.display_toast(f"Viewing {filter.name}: '{filter.command}'")
+
         self.filter_manager.selected_filter = filter
 
         # Replace the central layout widget
