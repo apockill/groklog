@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "groklog"
-version = "0.1.0"
+version = "0.1.1"
 description = "A tool for filtering logs quickly and easily"
 authors = ["Alex Thiel <apocthiel@gmail.com>"]
 license = "MIT"
@@ -10,12 +10,14 @@ python = "^3.8"
 pre-commit = "^2.13.0"
 asciimatics = "^1.13.0"
 pubsus = "^0.1.1"
+appdirs = "^1.4.4"
 
 [tool.poetry.dev-dependencies]
 # Pre-Commit
 pytest = "^6.2.4"
 black = "^21.6b0"
 isort = "^5.9.1"
+psutil = "^5.8.0"
 
 [tool.poetry.scripts]
 groklog = "groklog:main"
