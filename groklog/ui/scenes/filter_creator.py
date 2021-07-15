@@ -1,10 +1,12 @@
+import shlex
 from pathlib import Path
+from typing import Dict
 
-from asciimatics import effects, renderers, widgets
+from asciimatics import widgets
 from asciimatics.exceptions import InvalidFields
-from asciimatics.widgets import Frame, Layout
+from asciimatics.widgets import Layout
 
-from groklog.filter_manager import DuplicateFilterError, FilterManager
+from groklog.filter_manager import FilterManager, FilterNotFoundError
 
 from . import scene_names
 from .base_app import BaseApp
@@ -22,11 +24,17 @@ class FilterCreator(BaseApp):
             screen.width,
             has_border=True,
             can_scroll=False,
-            name="Benis",
+            name="FilterCreator",
             title="Create Filter",
         )
         self._filter_manager: FilterManager = filter_manager
         self.profile_path: Path = profile_path
+        self._validation_msg: Dict[str, str] = {
+            "default": "Please fix any fields highlighted in yellow."
+        }
+        """This is populated by validation commands and shown when someone tries to 
+        save when things aren't valid.
+        """
 
         dialog_layout = Layout([1, 30, 1, 30, 1], fill_frame=True)
 
@@ -65,7 +73,7 @@ class FilterCreator(BaseApp):
             widgets.Text(
                 label="Filter Name",
                 name=FilterManager.FILTER_NAME,
-                validator=lambda val: 0 < len(val) < 15,
+                validator=self._validate_filter_name,
             ),
             column=self._NEW_FILTER_PARAMETERS_COLUMN,
         )
@@ -73,7 +81,7 @@ class FilterCreator(BaseApp):
             widgets.Text(
                 label="Command",
                 name=FilterManager.FILTER_COMMAND,
-                validator=lambda val: len(val) > 0,
+                validator=self._validate_command,
             ),
             column=self._NEW_FILTER_PARAMETERS_COLUMN,
         )
@@ -98,26 +106,72 @@ class FilterCreator(BaseApp):
 
         self.fix()
 
+    def _validate_command(self, val: str):
+        # Reset the validation message
+        self._validation_msg.pop(FilterManager.FILTER_COMMAND, None)
+
+        # Validate length of message
+        if len(val) == 0:
+            msg = "The command is not filled in"
+            self._validation_msg[FilterManager.FILTER_COMMAND] = msg
+            return False
+
+        # Validate the command has correct bash syntax
+        try:
+            shlex.split(val)
+        except ValueError as e:
+            self._validation_msg[FilterManager.FILTER_COMMAND] = f"Invalid command: {e}"
+            return False
+
+        return True
+
+    def _validate_filter_name(self, val: str):
+        # Reset the validation message
+        self._validation_msg.pop(FilterManager.FILTER_NAME, None)
+
+        # Validate length of message
+        if len(val) > 15:
+            msg = "The filter name must be less than 15 characters"
+            self._validation_msg[FilterManager.FILTER_NAME] = msg
+            return False
+        elif len(val) == 0:
+            msg = "The filter name is not filled in"
+            self._validation_msg[FilterManager.FILTER_NAME] = msg
+            return False
+
+        # Validate there's no duplicate filters
+        try:
+            self._filter_manager.get_filter(val)
+            msg = "A filter with that name already exists"
+            self._validation_msg[FilterManager.FILTER_NAME] = msg
+            return False
+        except FilterNotFoundError:
+            pass
+
+        return True
+
     def save_filters(self):
         # TOOD: Add logic to save things here
         try:
             self.save(validate=True)
         except InvalidFields:
-            self.display_popup("Please fix any fields highlighted in yellow.", ["Ok"])
+            # Tell the user the reason why the form is invalid
+            if len(self._validation_msg) == 1:
+                msg = self._validation_msg["default"]
+            else:
+                msg = next(v for k, v in self._validation_msg.items() if k != "default")
+            self.display_popup(msg, ["Ok"])
             return
 
-        try:
-            parent_index = self.data[FilterManager.FILTER_PARENT]
-            parent_name = self.source_drop_down.options[parent_index][0]
-            parent_filter = self._filter_manager.get_filter(parent_name)
-            self._filter_manager.create_filter(
-                name=self.data[FilterManager.FILTER_NAME],
-                command=self.data[FilterManager.FILTER_COMMAND],
-                parent=parent_filter,
-            )
-        except DuplicateFilterError:
-            self.display_popup("There already exists a filter with that name!", ["Ok"])
-            return
+        parent_index = self.data[FilterManager.FILTER_PARENT]
+        parent_name = self.source_drop_down.options[parent_index][0]
+        parent_filter = self._filter_manager.get_filter(parent_name)
+        self._filter_manager.create_filter(
+            name=self.data[FilterManager.FILTER_NAME],
+            command=self.data[FilterManager.FILTER_COMMAND],
+            parent=parent_filter,
+        )
+
         self.profile_path = Path(self.data[self._SAVE_PATH_LABEL])
 
         self._filter_manager.save_profile(self.profile_path)
