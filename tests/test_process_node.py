@@ -57,7 +57,7 @@ def test_history_is_passed():
     # Now any new subscriber should get the first input upon subscription
     second_subscriber = Queue()
     process.subscribe_with_history(
-        process.Topic.BYTES_DATA_STREAM, second_subscriber.put
+        process.Topic.BYTES_DATA_STREAM, second_subscriber.put, blocking=False
     )
 
     second_subscriber_output = second_subscriber.get(timeout=5)
