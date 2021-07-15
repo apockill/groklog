@@ -30,7 +30,7 @@ class GrokLog(BaseApp):
         # Register all of the filter widgets
         self._filter_widgets = {}
         for filter in self.filter_manager:
-            self.register_filter(filter)
+            self._register_filter(filter)
 
         self.central_layout = Layout([100], fill_frame=True)
         self.add_layout(self.central_layout)
@@ -43,8 +43,22 @@ class GrokLog(BaseApp):
 
         self.fix()
 
-    def register_filter(self, filter):
+    def reset(self):
+        # After coming back from the AddFilter call, recreate the tab buttons to fill
+        # in any missing tabs.
+        for filter in self.filter_manager:
+            if filter not in self._filter_widgets:
+                self._register_filter(filter)
+
+        self.create_tab_buttons()
+        return super().reset()
+
+    def _register_filter(self, filter):
         """Create a widget for this filter and save it under self._filter_widgets"""
+        if filter in self._filter_widgets:
+            # This filter is already registered.
+            return
+
         if isinstance(filter, ShellProcessIO):
             widget = Terminal(
                 name="term",
