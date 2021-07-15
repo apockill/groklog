@@ -26,6 +26,8 @@ Cmd:  'uniq -c'       Cmd:  'cat -b'         Cmd:  'grep -C 10 --line-buffered e
                                              Name: 'Rainbow Errors'
                                              Cmd:  'lolcat -f'
 ```
+Each node in the tree is a separate tab in GrokLog, where the output for each command can be viewed individually:
+![GrokLog Main Screen](docs/img.png)
 
 The benefit of all of this is that you can filter logs or other streams using the 
 various unix tools you are already familiar with, and do so in a much more sophisticated 
