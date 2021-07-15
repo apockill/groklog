@@ -11,9 +11,9 @@ from .base import ProcessNode
 
 class ShellProcessIO(ProcessNode):
     """
-    The widget will start a bash shell in the background and use a pseudo TTY to control it.  It then
-    starts a thread to transfer any data between the two processes (the one running this widget and
-    the bash shell).
+    This object is a custom ProcessNode which exposes the same PubSub system, but has
+    better control over reading and writing to the underlying shell than the
+    GenericProcessIO process node. It also exposes a `send_sigint` function.
     """
 
     def __init__(self, name="Shell", command="bash -i"):
