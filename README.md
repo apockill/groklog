@@ -10,7 +10,8 @@ Here's an example of a process tree you could easily create:
                         Shell
                         ──┬──
                           │  
-                          │   The shell stdout and stderr combined are piped into subscribing filters.
+                          │   The shell stdout and stderr combined
+                          │   are piped into subscribing filters.
                           │ 
     ┌─────────────────────┼──────────────────────┐
     │                     │                      │
@@ -18,7 +19,8 @@ Here's an example of a process tree you could easily create:
 Name: 'Unique Lines'  Name: 'Line Numbers'   Name: 'Error logs'
  Cmd: 'uniq -c'        Cmd: 'cat -b'          Cmd: 'grep -C 10 --line-buffered error' 
                                                  │
-                                                 │   The 'Error Logs' stdout+stderr is piped to the filter below.
+                                                 │    The 'Error Logs' stdout+stderr is 
+                                                 │    piped to the filter below.
                                                  │
                                                  ▼
                                              Name: 'Rainbow Errors'
@@ -77,3 +79,33 @@ sample.
 2) Some code was sampled from the OpenVisionCapsules project, specifically for 
    verifying if all threads have been shut down after a unit test. 
 [Source file](https://github.com/opencv/open_vision_capsules/blob/master/vcap/vcap/testing/thread_validation.py).
+
+# TODOs
+**Other Todos**:
+
+- [X] Add support for saving and loading profiles
+- [X] Add commandline args to specify the profile (e.g. `groklog braiframe`)
+        The `help` can show the default path where profiles are saved
+- [X] Make a widget for viewing Filters that have been created
+- [X] After creating a new filter, refresh the buttons
+- [X] Make FilterViewer update live
+
+- [ ] Add a cache to add_stream color parsing. Make it ~100k lines
+- [ ] Instead of _add_stream parsing forever, chunk and release text to the queue
+
+# Polish
+- [ ] Hide the cursor on the FilterView widget
+- [ ] Have the current tab button "selected" on click (and keep it selected)
+- [ ] Allow user to add infinite number of logs, or at least, scale the nubmer a bit
+- [ ] Pressing "Cancel" on FilterCreator should take you to your last viewed tab.
+- [ ] Decide if scrollbar should be enabled for text view. If it's not usable, remove it.
+- [ ] Make the up/down arrows immediately scroll up/down on the FilterWidget
+- [ ] Newlines are handled differently by FilterViewer if you are/aren't viewing the filter. 
+- [ ] Add a live "line count" to the buttons
+- [ ] Use shlex.split as a validator
+- [ ] Send a toast each time the central widget changes, with the name of the changed filter
+
+
+# Bugs
+- [ ] Pressing Ctrl+C kills child processes
+- [ ] Adding a filter doesn't refresh the buttons on the bottom
