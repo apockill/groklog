@@ -83,6 +83,12 @@ class GrokLog(BaseApp):
         self.central_layout.add_widget(new_widget)
         self.central_layout.add_widget(widgets.Divider())
 
+        if isinstance(new_widget, Terminal):
+            # The terminal has a... hard time keeping stuff on the screen. This forces
+            # the terminal to re-subscribe and refresh the screen.
+            # TODO: Investigate why the terminal doesn't redraw it's screen correctly
+            new_widget.reset()
+
         # This seems to put the widget into the update() loop
         self.central_layout.focus(force_widget=new_widget)
 
