@@ -37,11 +37,13 @@ where you left off!
 
 
 # Usage
+## Install and run
 ```shell
 pipx install groklog
 groklog
 ```
 
+## Profiles
 GrokLog saves configuration using a concept of profiles. A profile stores all the 
 configuration for a process tree. By default GrokLog loads/creates the `default` profile. 
 You can load/create a different profile by running:
@@ -50,7 +52,7 @@ You can load/create a different profile by running:
 groklog profilename
 ```
 
-### Controls
+## Controls
 When in the `Shell` view, use the shell as you would normally. 
 
 When viewing a filter, use the up/down arrows to move the cursor, or `PgUp`/`PgDn` to skip by
