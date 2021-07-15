@@ -17,14 +17,14 @@ Here's an example of a process tree you could easily create:
     │                     │                      │
     ▼                     ▼                      ▼
 Name: 'Unique Lines'  Name: 'Line Numbers'   Name: 'Error logs'
- Cmd: 'uniq -c'        Cmd: 'cat -b'          Cmd: 'grep -C 10 --line-buffered error' 
+Cmd:  'uniq -c'       Cmd:  'cat -b'         Cmd:  'grep -C 10 --line-buffered error' 
                                              ────┬────
                                                  │    The 'Error Logs' stdout+stderr is 
                                                  │    piped to the filter below.
                                                  │
                                                  ▼
                                              Name: 'Rainbow Errors'
-                                              Cmd: 'lolcat -f'
+                                             Cmd:  'lolcat -f'
 ```
 
 The benefit of all of this is that you can filter logs or other streams using the 
