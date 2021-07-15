@@ -21,7 +21,7 @@ class FilterCreator(BaseApp):
             screen.height,
             screen.width,
             has_border=True,
-            can_scroll=True,
+            can_scroll=False,
             name="Benis",
             title="Create Filter",
         )
