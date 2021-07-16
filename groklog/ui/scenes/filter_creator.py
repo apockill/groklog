@@ -22,7 +22,6 @@ class FilterCreator(BaseApp):
             screen,
             screen.height,
             screen.width,
-            has_border=True,
             can_scroll=False,
             name="FilterCreator",
             title="Create Filter",
