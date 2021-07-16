@@ -101,13 +101,14 @@ class Terminal(Widget):
 
     def _add_stream(self, value: str):
         """
-        Process any output from the TTY. The value is split into lines, and only
-        the last X lines will get rendered. This makes it possible for the
-        shell to dump huge amounts of data, but only the lines that fit on the
-        height of the terminal will ever be rendered.
+        Process any output from the TTY.
         """
         canvas_height, _ = self._canvas.dimensions
-        lines = value.split("\n")[-canvas_height:]
+
+        # Limit the value to either the last 10k characters, or the last canvas_height
+        # lines. This performance optimization makes it impossible to have the UI block
+        # for too long just to render a massive set of logs.
+        lines = value[-10000:].split("\n")[-canvas_height:]
 
         for i, line in enumerate(lines):
             self._parser.reset(line, self._current_colours)
