@@ -76,7 +76,7 @@ pytest .
 
 # Attributions
 1) This code makes heavy use of the fantastic `asciimatics` library for all TUI 
-rendering purposes. Some reference code as copied from the 
+rendering purposes. Some reference code was copied from the 
 [terminal.py](https://github.com/peterbrittain/asciimatics/blob/master/samples/terminal.py) 
 sample. 
 
