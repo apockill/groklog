@@ -89,9 +89,9 @@ class GrokLog(BaseApp):
             new_widget.reset()
 
         # This seems to put the widget into the update() loop
-        self.central_layout.focus(force_widget=new_widget)
-
         self.fix()
+        self.central_layout.focus(force_widget=new_widget)
+        self.screen.force_update(full_refresh=True)
 
     def create_tab_buttons(self):
         """Create all of the tab buttons again"""
