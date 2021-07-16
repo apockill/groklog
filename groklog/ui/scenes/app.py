@@ -20,7 +20,6 @@ class GrokLog(BaseApp):
             screen,
             screen.height,
             screen.width,
-            has_border=True,
             can_scroll=False,
             name="GrokLog",
             title="GrokLog",
