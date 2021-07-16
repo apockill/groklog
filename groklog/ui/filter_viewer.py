@@ -63,3 +63,7 @@ class FilterViewer(TextBox):
     def value(self, value):
         """This value should never be used. It's been replaced by _add_stream"""
         pass
+
+    @property
+    def frame_update_count(self):
+        return 1 if self._has_focus else 0

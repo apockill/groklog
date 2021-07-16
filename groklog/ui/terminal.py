@@ -247,7 +247,7 @@ class Terminal(Widget):
         Frame update rate required.
         """
         # Force refresh for cursor.
-        return 1
+        return 1 if self._has_focus else 0
 
     @property
     def value(self):
