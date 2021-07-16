@@ -10,7 +10,7 @@ from groklog.ui.theming import set_theme
 
 class BaseApp(widgets.Frame):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, is_modal=True, reduce_cpu=False, has_border=True, **kwargs)
         set_theme(self)
 
     def change_scene(self, scene_name: str):
