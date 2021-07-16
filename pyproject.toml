@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "groklog"
-version = "0.1.1"
+version = "0.3.0"
 description = "A tool for filtering logs quickly and easily"
 authors = ["Alex Thiel <apocthiel@gmail.com>"]
 license = "MIT"
