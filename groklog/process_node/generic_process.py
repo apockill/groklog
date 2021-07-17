@@ -13,9 +13,9 @@ class GenericProcessIO(ProcessNode):
         super().__init__(name=name, command=command)
 
         self._process = subprocess.Popen(
-            shlex.split(self.command),
+            self.command,
             preexec_fn=os.setsid,
-            shell=False,
+            shell=True,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
