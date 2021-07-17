@@ -1,11 +1,43 @@
 import copy
 from queue import Queue
+from typing import Generator, List, Tuple
 
 from asciimatics.parsers import AnsiTerminalParser
 from asciimatics.strings import ColouredText
 from asciimatics.widgets import TextBox
 
 from groklog.process_node import GenericProcessIO, ProcessNode
+
+_line_cache = {}
+
+
+def _cached_coloured_text(
+    lines: List[str],
+    last_colour: Tuple,
+    from_filter: ProcessNode,
+    parser: AnsiTerminalParser,
+) -> Generator[ColouredText, None, None]:
+    """This generator yields coloured text for each of the lines. It caches results
+    along the way, so that any duplicate lines in the future are yieled immediately with
+    no duplicate processing. """
+
+    filter_key = from_filter.name + from_filter.command
+
+    for line in lines:
+        cache_key = (line, last_colour, filter_key)
+
+        # Yield cached results if they exist
+        if cache_key in _line_cache:
+            yield _line_cache[cache_key]
+            continue
+
+        try:
+            value = ColouredText(line, parser, colour=last_colour)
+        except IndexError:
+            continue
+        _line_cache[cache_key] = value
+        yield value
+        last_colour = tuple(value.last_colour)
 
 
 class FilterViewer(TextBox):
@@ -46,16 +78,24 @@ class FilterViewer(TextBox):
         """Append text to the log stream. This function should receive input from
         the filter and display it."""
 
-        last_colour = self._value[-1].last_colour
+        processed_lines = []
+        for colored_line in _cached_coloured_text(
+            lines=append_logs.split("\n"),
+            last_colour=tuple(self._value[-1].last_colour),
+            from_filter=self.filter,
+            parser=self._parser,
+        ):
+            processed_lines.append(colored_line)
 
-        new_value = []
-        for line in append_logs.split("\n"):
-            value = ColouredText(line, self._parser, colour=last_colour)
-            new_value.append(value)
-            last_colour = value.last_colour
+            # If the UI has nothing to show, then send what's been processed so far.
+            # Otherwise the UI hasn't gotten around to showing what's already in the
+            # queue, so just hold onto the processed lines for now.
+            if self._processed_data_queue.qsize() == 0:
+                self._processed_data_queue.put(processed_lines)
+                processed_lines = []
 
-        # Put this in a queue to be picked up by the main thread, in self.update
-        self._processed_data_queue.put(new_value)
+        # Release any processed lines that haven't been released yet.
+        self._processed_data_queue.put(processed_lines)
 
     @property
     def value(self):
