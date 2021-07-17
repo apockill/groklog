@@ -26,7 +26,10 @@ class FilterViewer(TextBox):
         # Create subscriptions
         self._processed_data_queue = Queue()
         """self._add_stream pushes to here, and self.update pulls the results"""
-        filter.subscribe(ProcessNode.Topic.STRING_DATA_STREAM, self._add_stream)
+
+        filter.subscribe_with_history(
+            ProcessNode.Topic.STRING_DATA_STREAM, self._add_stream, blocking=False
+        )
 
     def process_event(self, event):
         return super().process_event(event)
