@@ -77,8 +77,14 @@ class FilterViewer(StreamingTextBox):
         the filter and display it."""
 
         processed_lines = []
+
+        # Remove the extra empty line that occurs if there's a \n at the end of the logs
+        split = append_logs.split("\n")
+        if split[-1] == "":
+            split.pop(-1)
+
         for colored_line in _cached_coloured_text(
-            lines=append_logs.split("\n"),
+            lines=split,
             last_colour=tuple(self._value[-1].last_colour),
             from_filter=self.filter,
             parser=self._parser,
