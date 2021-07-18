@@ -1,3 +1,4 @@
+from asciimatics.strings import ColouredText
 from asciimatics.widgets import TextBox
 from asciimatics.widgets.utilities import _enforce_width
 
@@ -7,6 +8,10 @@ class StreamingTextBox(TextBox):
         if kwargs.get("line_wrap", None) is not None:
             raise ValueError("'line_wrap' is not modifiable in StreamingTextBox!")
         super().__init__(*args, line_wrap=True, **kwargs)
+
+        # Set up initial _value and _reflowed_text_cache values
+        self._value = [ColouredText("", self._parser, colour=None)]
+        self._reflowed_text_cache = [(self._value[-1], 0, 0)]
 
     def add_lines(self, new_lines):
         """Add new lines to the text box.

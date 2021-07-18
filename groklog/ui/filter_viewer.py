@@ -4,9 +4,9 @@ from typing import Generator, List, Tuple
 
 from asciimatics.parsers import AnsiTerminalParser
 from asciimatics.strings import ColouredText
-from asciimatics.widgets import TextBox
 
 from groklog.process_node import GenericProcessIO, ProcessNode
+from groklog.ui.streaming_text_box import StreamingTextBox
 
 _line_cache = {}
 
@@ -19,7 +19,7 @@ def _cached_coloured_text(
 ) -> Generator[ColouredText, None, None]:
     """This generator yields coloured text for each of the lines. It caches results
     along the way, so that any duplicate lines in the future are yieled immediately with
-    no duplicate processing. """
+    no duplicate processing."""
 
     filter_key = from_filter.name + from_filter.command
 
@@ -40,20 +40,17 @@ def _cached_coloured_text(
         last_colour = tuple(value.last_colour)
 
 
-class FilterViewer(TextBox):
+class FilterViewer(StreamingTextBox):
     def __init__(self, filter: GenericProcessIO, height: int):
         super().__init__(
             height,
             name=f"FilterViewer-{filter.name}-{filter.command})",
             readonly=True,
             as_string=False,
-            line_wrap=True,
             parser=AnsiTerminalParser(),
         )
         self.filter = filter
-        self._data_queue = Queue()
         self.custom_colour = "filter_viewer"
-        self._value = [ColouredText("", self._parser, colour=None)]
 
         # Create subscriptions
         self._processed_data_queue = Queue()
@@ -67,10 +64,11 @@ class FilterViewer(TextBox):
         return super().process_event(event)
 
     def update(self, frame_no):
-        while self._processed_data_queue.qsize():
-            self._value += self._processed_data_queue.get_nowait()
 
-        self.reset()
+        new_lines = []
+        while self._processed_data_queue.qsize():
+            new_lines += self._processed_data_queue.get_nowait()
+        self.add_lines(new_lines)
 
         return super().update(frame_no)
 
