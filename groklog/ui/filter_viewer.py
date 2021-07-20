@@ -28,14 +28,13 @@ def _cached_coloured_text(
 
         # Yield cached results if they exist
         if cache_key in _line_cache:
-            yield _line_cache[cache_key]
-            continue
-
-        try:
-            value = ColouredText(line, parser, colour=last_colour)
-        except IndexError:
-            continue
-        _line_cache[cache_key] = value
+            value = _line_cache[cache_key]
+        else:
+            try:
+                value = ColouredText(line, parser, colour=last_colour)
+            except IndexError:
+                continue
+            _line_cache[cache_key] = value
         yield value
         last_colour = tuple(value.last_colour)
 
