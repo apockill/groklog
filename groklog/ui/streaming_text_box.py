@@ -57,3 +57,17 @@ class StreamingTextBox(TextBox):
         """Because this class sets the _reflowed_text_cache in the add_stream method, we
         override the TextBox for this property."""
         return self._reflowed_text_cache
+
+    @property
+    def value(self):
+        self._value = [ColouredText("", self._parser, colour=None)]
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        """This value should never be used. It's been replaced by _add_stream"""
+        pass
+
+    @property
+    def frame_update_count(self):
+        return 1 if self._has_focus else 0

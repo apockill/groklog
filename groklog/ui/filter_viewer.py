@@ -59,9 +59,6 @@ class FilterViewer(StreamingTextBox):
             ProcessNode.Topic.STRING_DATA_STREAM, self._add_stream, blocking=False
         )
 
-    def process_event(self, event):
-        return super().process_event(event)
-
     def update(self, frame_no):
 
         new_lines = []
@@ -99,17 +96,3 @@ class FilterViewer(StreamingTextBox):
 
         # Release any processed lines that haven't been released yet.
         self._processed_data_queue.put(processed_lines)
-
-    @property
-    def value(self):
-        self._value = [ColouredText("", self._parser, colour=None)]
-        return self._value
-
-    @value.setter
-    def value(self, value):
-        """This value should never be used. It's been replaced by _add_stream"""
-        pass
-
-    @property
-    def frame_update_count(self):
-        return 1 if self._has_focus else 0
