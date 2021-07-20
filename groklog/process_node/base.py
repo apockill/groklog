@@ -77,11 +77,9 @@ class ProcessNode(ABC, PubSubMixin):
         """Onboard any subscribers who wish to have the full history before adding more
         history.
         """
-
-        with self._history_lock:
-            while self._running and self._new_subscribers.qsize():
-                self._onboard_subscriber(*self._new_subscribers.get_nowait())
-                self._new_subscribers.task_done()
+        while self._running and self._new_subscribers.qsize():
+            self._onboard_subscriber(*self._new_subscribers.get_nowait())
+            self._new_subscribers.task_done()
 
     def _onboard_subscriber(self, topic, subscriber):
         if self.is_subscribed(topic, subscriber):
