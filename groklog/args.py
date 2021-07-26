@@ -10,7 +10,7 @@ GrokLog is a tool for creating "process trees", that is, a root process (an ordi
 has its output piped into the stdin of other processes. Those other processes can in 
 turn have _their_ stdout piped into even more processes. Then, groklog lets you view the 
 stdout of every process in the tree. 
- 
+
 The benefit of all of this is that you can filter logs or other streams using the 
 various unix tools you are already familiar with, and do so in a much more sophisticated 
 way. 
