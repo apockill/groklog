@@ -28,3 +28,5 @@ class GroklogApp(App):
             area2=output,
             area3=in_put,
         )
+
+        await self.set_focus(in_put)
