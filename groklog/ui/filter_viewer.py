@@ -1,98 +1,32 @@
-import copy
-from queue import Queue
-from typing import Generator, List, Tuple
+from threading import RLock
+from typing import Any
 
-from asciimatics.parsers import AnsiTerminalParser
-from asciimatics.strings import ColouredText
+from rich.console import Console
+from rich.text import Text
+from textual import events
+from textual.widgets import ScrollView
 
-from groklog.process_node import GenericProcessIO, ProcessNode
-from groklog.ui.streaming_text_box import StreamingTextBox
-
-_line_cache = {}
+from groklog.process_node import ProcessNode, ShellProcessIO
 
 
-def _cached_coloured_text(
-    lines: List[str],
-    last_colour: Tuple,
-    from_filter: ProcessNode,
-    parser: AnsiTerminalParser,
-) -> Generator[ColouredText, None, None]:
-    """This generator yields coloured text for each of the lines. It caches results
-    along the way, so that any duplicate lines in the future are yieled immediately with
-    no duplicate processing."""
-
-    filter_key = from_filter.name + from_filter.command
-
-    for line in lines:
-        cache_key = (line, last_colour, filter_key)
-
-        # Yield cached results if they exist
-        if cache_key in _line_cache:
-            value = _line_cache[cache_key]
-        else:
-            try:
-                value = ColouredText(line, parser, colour=last_colour)
-            except IndexError:
-                continue
-            _line_cache[cache_key] = value
-        yield value
-        last_colour = tuple(value.last_colour)
-
-
-class FilterViewer(StreamingTextBox):
-    def __init__(self, filter: GenericProcessIO, height: int):
-        super().__init__(
-            height,
-            name=f"FilterViewer-{filter.name}-{filter.command})",
-            readonly=True,
-            as_string=False,
-            parser=AnsiTerminalParser(),
+class FilterViewer(ScrollView):
+    def __init__(self, *args: Any, process_node: ProcessNode, **kwargs: Any):
+        super().__init__(*args, fluid=False, **kwargs)
+        self._process_node = process_node
+        self._process_node.subscribe(
+            ShellProcessIO.Topic.STRING_DATA_STREAM, self.on_shell_output
         )
-        self.filter = filter
-        self.custom_colour = "filter_viewer"
+        self._console = Console()
+        self._text_lock = RLock()
+        self._text = Text("")
 
-        # Create subscriptions
-        self._processed_data_queue = Queue()
-        """self._add_stream pushes to here, and self.update pulls the results"""
+    async def on_mount(self, event: events.Mount) -> None:
+        self.set_interval(0.25, self.update_text)
 
-        filter.subscribe_with_history(
-            ProcessNode.Topic.STRING_DATA_STREAM, self._add_stream, blocking=False
-        )
+    async def update_text(self):
+        with self._text_lock:
+            await self.update(self._text, home=False)
 
-    def update(self, frame_no):
-
-        new_lines = []
-        while self._processed_data_queue.qsize():
-            new_lines += self._processed_data_queue.get_nowait()
-        self.add_lines(new_lines)
-
-        return super().update(frame_no)
-
-    def _add_stream(self, append_logs: str):
-        """Append text to the log stream. This function should receive input from
-        the filter and display it."""
-
-        processed_lines = []
-
-        # Remove the extra empty line that occurs if there's a \n at the end of the logs
-        split = append_logs.split("\n")
-        if split[-1] == "":
-            split.pop(-1)
-
-        for colored_line in _cached_coloured_text(
-            lines=split,
-            last_colour=tuple(self._value[-1].last_colour),
-            from_filter=self.filter,
-            parser=self._parser,
-        ):
-            processed_lines.append(colored_line)
-
-            # If the UI has nothing to show, then send what's been processed so far.
-            # Otherwise the UI hasn't gotten around to showing what's already in the
-            # queue, so just hold onto the processed lines for now.
-            if self._processed_data_queue.qsize() == 0:
-                self._processed_data_queue.put(processed_lines)
-                processed_lines = []
-
-        # Release any processed lines that haven't been released yet.
-        self._processed_data_queue.put(processed_lines)
+    def on_shell_output(self, output: str):
+        with self._text_lock:
+            self._text.append(Text.from_ansi(output + "\n", no_wrap=True, end=""))
