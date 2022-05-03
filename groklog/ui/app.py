@@ -4,6 +4,7 @@ from textual.widgets import Header
 from groklog.filter_manager import FilterManager
 from groklog.process_node import ShellProcessIO
 from groklog.ui.command_text_box import CommandTextbox
+
 from .filter_viewer import FilterViewer
 
 

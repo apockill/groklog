@@ -7,6 +7,7 @@ from .version import __version__
 
 
 def main():
+    # TODO: Pass args
     args = parse_args()
     GroklogApp.run(title="Groklog")
 

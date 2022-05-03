@@ -12,6 +12,7 @@ asciimatics = { git = "https://github.com/peterbrittain/asciimatics.git", branch
 
 pubsus = "^0.1.1"
 appdirs = "^1.4.4"
+textual = "^0.1.18"
 
 [tool.poetry.dev-dependencies]
 # Pre-Commit
